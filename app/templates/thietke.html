@@ -7,7 +7,7 @@
 {% block content %}
 <div class="container">
     <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Dữ liệu tham khảo của các laptop theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
+        <h5 class="">Dữ liệu tham khảo của các honda theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
         <div class="mb-3">
             <select class="form-select" id="laptopPerformanceFilterTab">
                 <option value="Văn phòng">Văn phòng</option>
@@ -100,16 +100,16 @@
                 return 1; // Dày
             }
     
-            function calculateDesignScore(laptop) {
-                const weightScore = getWeightDesignScore(laptop.weight);
-                const materialScore = getMaterialDesignScore(laptop.material);
-                const thicknessScore = getThicknessDesignScore(laptop.thickness);
+            function calculateDesignScore(honda) {
+                const weightScore = getWeightDesignScore(honda.weight);
+                const materialScore = getMaterialDesignScore(honda.material);
+                const thicknessScore = getThicknessDesignScore(honda.thickness);
                 return (weightScore + materialScore + thicknessScore) / 3;
             }
     
             function populateTable(data) {
                 laptopInfoTableBody.innerHTML = '';
-                data.forEach(laptop => {
+                data.forEach(honda => {
                     const row = laptopInfoTableBody.insertRow();
                     const typeCell = row.insertCell();
                     const modelCell = row.insertCell();
@@ -121,17 +121,17 @@
                     weightCell.classList.add('text-center');
                     thicknessCell.classList.add('text-center');
     
-                    typeCell.textContent = laptop.type;
-                    modelCell.textContent = laptop.model;
-                    weightCell.textContent = laptop.weight;
-                    materialCell.textContent = laptop.material;
-                    thicknessCell.textContent = laptop.thickness;
+                    typeCell.textContent = honda.type;
+                    modelCell.textContent = honda.model;
+                    weightCell.textContent = honda.weight;
+                    materialCell.textContent = honda.material;
+                    thicknessCell.textContent = honda.thickness;
                 });
             }
     
             function updateDesignChart(selectedType) {
-                const filteredData = designData.filter(laptop => laptop.type === selectedType);
-                const labels = filteredData.map(laptop => laptop.model);
+                const filteredData = designData.filter(honda => honda.type === selectedType);
+                const labels = filteredData.map(honda => honda.model);
                 const designScores = filteredData.map(calculateDesignScore);
     
                 if (designChartInstance) {
@@ -168,7 +168,7 @@
             }
     
             function updateContent(selectedType) {
-                const filteredData = designData.filter(laptop => laptop.type === selectedType);
+                const filteredData = designData.filter(honda => honda.type === selectedType);
                 populateTable(filteredData);
                 updateDesignChart(selectedType);
             }
@@ -192,14 +192,14 @@
     <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
         <form method="POST" action="{{ url_for('thietke.thietke_page') }}" id="alternativeComparisonForm">
             <div>
-                <h5 class="">Chọn loại laptop để đánh giá theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
+                <h5 class="">Chọn loại honda để đánh giá theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
                 <select class="form-select" id="laptopType" name="selected_laptop_type_id"
                     onchange="this.form.submit()">
-                    <option value="">-- Chọn loại laptop --</option>
-                    {% for laptop_type in laptop_types %}
-                    <option value="{{ laptop_type.id }}" {% if current_laptop_type_id|string==laptop_type.id|string
+                    <option value="">-- Chọn loại honda --</option>
+                    {% for honda_type in honda_types %}
+                    <option value="{{ honda_type.id }}" {% if current_laptop_type_id|string==honda_type.id|string
                         %}selected{% endif %}>
-                        {{ laptop_type.name }}
+                        {{ honda_type.name }}
                     </option>
                     {% endfor %}
                 </select>
@@ -259,7 +259,7 @@
             </div>
             <input type="hidden" name="load_suggestions" id="loadSuggestionsInput" value="false">
             {% else %}
-            <div class="alert alert-warning">Vui lòng chọn loại laptop để đánh giá.</div>
+            <div class="alert alert-warning">Vui lòng chọn loại honda để đánh giá.</div>
             {% endif %}
         </form>
 

@@ -7,24 +7,24 @@ So sánh tiêu chí
 {% block content %}
 <div class="container-lg">
     <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Chọn loại laptop theo nhu cầu trước khi đánh giá</h5>
+        <h5 class="">Chọn loại honda theo nhu cầu trước khi đánh giá</h5>
         <hr/>
         <div class="fst-italic" style="font-size: 17px;">
             - Có 2 nhu cầu chính và phổ biến:
         </div>
         <div class="fst-italic" style="font-size: 17px;">
-            + Laptop văn phòng: Mỏng nhẹ, thanh lịch, hiệu năng đủ cho văn phòng, đồ họa tích hợp, pin lâu, giá tốt.
+            + Honda văn phòng: Mỏng nhẹ, thanh lịch, hiệu năng đủ cho văn phòng, đồ họa tích hợp, pin lâu, giá tốt.
         </div>
         <div class="fst-italic" style="font-size: 17px;">
-            + Laptop gaming: Dày nặng, hiệu năng mạnh, tản nhiệt tốt, màn hình tần số quét cao, pin yếu, giá thường cao.
+            + Honda gaming: Dày nặng, hiệu năng mạnh, tản nhiệt tốt, màn hình tần số quét cao, pin yếu, giá thường cao.
         </div>
         <hr/>
         <form method="POST" action="{{ url_for('main.home_page') }}">
             <select class="form-select" id="laptopType" name="selected_laptop_type_id" onchange="this.form.submit()">
-                <option value="">-- Chọn loại laptop --</option>
-                {% for laptop_type in laptop_types %}
-                <option value="{{ laptop_type.id }}" {% if selected_laptop_type and selected_laptop_type.id|string == laptop_type.id|string %}selected{% endif %}>
-                    {{ laptop_type.name }}
+                <option value="">-- Chọn loại honda --</option>
+                {% for honda_type in honda_types %}
+                <option value="{{ honda_type.id }}" {% if selected_laptop_type and selected_laptop_type.id|string == honda_type.id|string %}selected{% endif %}>
+                    {{ honda_type.name }}
                 </option>
                 {% endfor %}
             </select>
@@ -32,7 +32,7 @@ So sánh tiêu chí
     </div>
 
     <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Đánh giá các tiêu chí trong việc lựa chọn laptop {% if selected_laptop_type %} {{ selected_laptop_type.name }} {% else %} Acer {% endif %}</h5>
+        <h5 class="">Đánh giá các tiêu chí trong việc lựa chọn honda {% if selected_laptop_type %} {{ selected_laptop_type.name }} {% else %} Acer {% endif %}</h5>
         <hr/>
         <div class="fst-italic" style="font-size: 17px;">
             - Có 7 tiêu chỉ để đánh giá bao gồm: Hiệu năng (CPU, RAM, Card đồ hoạ), Chi phí, Thiết kế (Trọng lượng, Chất
@@ -278,7 +278,7 @@ So sánh tiêu chí
             });
         });
 
-        // Lưu giá trị loại laptop vào Local Storage và hidden input khi có thay đổi
+        // Lưu giá trị loại honda vào Local Storage và hidden input khi có thay đổi
         laptopTypeSelect.addEventListener('change', function() {
             storedData.selectedLaptopType = this.value;
             localStorage.setItem(storedDataKey, JSON.stringify(storedData));
@@ -314,7 +314,7 @@ So sánh tiêu chí
         calculateButton.addEventListener('click', function(event) {
             if (!laptopTypeSelect.value) {
                 event.preventDefault();
-                alert('Vui lòng chọn loại laptop trước khi tính toán.');
+                alert('Vui lòng chọn loại honda trước khi tính toán.');
                 return;
             }
 

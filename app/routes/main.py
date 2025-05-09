@@ -82,7 +82,7 @@ def generate_comparison_matrix_data(criteria, submitted_values=None, input_error
 @main_bp.route("/", methods=["GET", "POST"])
 def home_page():
     criteria = Criteria.query.all()
-    laptop_types = LaptopType.query.all()
+    honda_types = LaptopType.query.all()
     alternatives = []
     weights = session.get('weights')
     cr = session.get('cr')
@@ -100,7 +100,7 @@ def home_page():
     if request.method == "POST":
         session['selected_laptop_type_id'] = request.form.get('selected_laptop_type_id')
         if not selected_laptop_type_id:
-            error = "Vui lòng chọn loại laptop trước khi tính toán."
+            error = "Vui lòng chọn loại honda trước khi tính toán."
         else:
             selected_laptop_type = LaptopType.query.get(selected_laptop_type_id)
             alternatives = Alternatives.query.filter_by(laptop_type_id=selected_laptop_type_id).all()
@@ -156,7 +156,7 @@ def home_page():
         cr=cr,
         error=error,
         ranked_alternatives=ranked_alternatives,
-        laptop_types=laptop_types,
+        honda_types=honda_types,
         selected_laptop_type=selected_laptop_type,
     )
 
@@ -189,12 +189,12 @@ def export_pdf():
     story = []
 
     # Tiêu đề
-    story.append(Paragraph("<b>Kết quả phân tích lựa chọn Laptop Acer</b>", styles['h1']))
+    story.append(Paragraph("<b>Kết quả phân tích lựa chọn Honda Acer</b>", styles['h1']))
     story.append(Spacer(1, 12))
 
-    # Loại laptop đã chọn
+    # Loại honda đã chọn
     if selected_laptop_type:
-        story.append(Paragraph(f"<b>Loại laptop đã chọn:</b> {selected_laptop_type.name}", styles['h2']))
+        story.append(Paragraph(f"<b>Loại honda đã chọn:</b> {selected_laptop_type.name}", styles['h2']))
         story.append(Spacer(1, 12))
 
     # Bảng ma trận so sánh cặp tiêu chí

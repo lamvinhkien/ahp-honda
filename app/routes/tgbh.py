@@ -150,7 +150,7 @@ def generate_alternative_comparison_matrix_data(alternatives, criteria_id, lapto
 def tgbh_page():
     criteria_name = "Thời gian bảo hành"
     criteria = Criteria.query.filter_by(name=criteria_name).first()
-    laptop_types = LaptopType.query.all()
+    honda_types = LaptopType.query.all()
     selected_laptop_type_id = request.form.get('selected_laptop_type_id') or request.args.get('selected_laptop_type_id') or session.get('tgbh_selected_laptop_type_id')
     selected_laptop_type = LaptopType.query.get(selected_laptop_type_id)
     alternatives = []
@@ -227,7 +227,7 @@ def tgbh_page():
     elif criteria and selected_laptop_type_id:
         comparison_matrix_data = generate_alternative_comparison_matrix_data(alternatives, criteria.id, selected_laptop_type_id, load_suggestions, session.get('tgbh_comparison_values'))
     else:
-        comparison_matrix_data = generate_alternative_comparison_matrix_data(alternatives, 0, 0) # Placeholder if no laptop type selected
+        comparison_matrix_data = generate_alternative_comparison_matrix_data(alternatives, 0, 0) # Placeholder if no honda type selected
 
     ranked_alternative_weights = []
     if weights:
@@ -244,6 +244,6 @@ def tgbh_page():
         ranked_alternative_weights=ranked_alternative_weights,
         selected_laptop_type=selected_laptop_type,
         criteria_name=criteria_name,
-        laptop_types=laptop_types,
+        honda_types=honda_types,
         current_laptop_type_id=selected_laptop_type_id
     )

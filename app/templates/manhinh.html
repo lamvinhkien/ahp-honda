@@ -7,7 +7,7 @@
 {% block content %}
 <div class="container">
     <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Dữ liệu tham khảo của các laptop theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
+        <h5 class="">Dữ liệu tham khảo của các honda theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
         <div class="mb-3">
             <select class="form-select" id="laptopPerformanceFilterTab">
                 <option value="Văn phòng">Văn phòng</option>
@@ -111,17 +111,17 @@
          return 1; // 60Hz
         }
       
-        function calculateScreenQualityScore(laptop) {
-         const sizeScore = getScreenSizeScore(laptop.screenSize);
-         const resolutionScore = getResolutionScore(laptop.resolution);
-         const techScore = getScreenTechScore(laptop.screenTech);
-         const refreshRateScore = getRefreshRateScore(laptop.refreshRate);
+        function calculateScreenQualityScore(honda) {
+         const sizeScore = getScreenSizeScore(honda.screenSize);
+         const resolutionScore = getResolutionScore(honda.resolution);
+         const techScore = getScreenTechScore(honda.screenTech);
+         const refreshRateScore = getRefreshRateScore(honda.refreshRate);
          return (sizeScore + resolutionScore + techScore + refreshRateScore) / 4;
         }
       
         function populateTable(data) {
          laptopInfoTableBody.innerHTML = '';
-         data.forEach(laptop => {
+         data.forEach(honda => {
           const row = laptopInfoTableBody.insertRow();
           const typeCell = row.insertCell();
           const modelCell = row.insertCell();
@@ -136,18 +136,18 @@
           screenTechCell.classList.add('text-center');
           refreshRateCell.classList.add('text-center');
       
-          typeCell.textContent = laptop.type;
-          modelCell.textContent = laptop.model;
-          screenSizeCell.textContent = laptop.screenSize;
-          resolutionCell.textContent = laptop.resolution;
-          screenTechCell.textContent = laptop.screenTech;
-          refreshRateCell.textContent = laptop.refreshRate;
+          typeCell.textContent = honda.type;
+          modelCell.textContent = honda.model;
+          screenSizeCell.textContent = honda.screenSize;
+          resolutionCell.textContent = honda.resolution;
+          screenTechCell.textContent = honda.screenTech;
+          refreshRateCell.textContent = honda.refreshRate;
          });
         }
       
         function updatePerformanceChart(selectedType) {
-         const filteredData = laptopData.filter(laptop => laptop.type === selectedType);
-         const labels = filteredData.map(laptop => laptop.model);
+         const filteredData = laptopData.filter(honda => honda.type === selectedType);
+         const labels = filteredData.map(honda => honda.model);
          const performanceData = filteredData.map(calculateScreenQualityScore);
       
          if (performanceChartInstance) {
@@ -183,7 +183,7 @@
         }
       
         function updateContent(selectedType) {
-         const filteredData = laptopData.filter(laptop => laptop.type === selectedType);
+         const filteredData = laptopData.filter(honda => honda.type === selectedType);
          populateTable(filteredData);
          updatePerformanceChart(selectedType);
         }
@@ -204,14 +204,14 @@
     <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
         <form method="POST" action="{{ url_for('manhinh.manhinh_page') }}" id="alternativeComparisonForm">
             <div>
-                <h5 class="">Chọn loại laptop để đánh giá theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
+                <h5 class="">Chọn loại honda để đánh giá theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
                 <select class="form-select" id="laptopType" name="selected_laptop_type_id"
                     onchange="this.form.submit()">
-                    <option value="">-- Chọn loại laptop --</option>
-                    {% for laptop_type in laptop_types %}
-                    <option value="{{ laptop_type.id }}" {% if current_laptop_type_id|string==laptop_type.id|string
+                    <option value="">-- Chọn loại honda --</option>
+                    {% for honda_type in honda_types %}
+                    <option value="{{ honda_type.id }}" {% if current_laptop_type_id|string==honda_type.id|string
                         %}selected{% endif %}>
-                        {{ laptop_type.name }}
+                        {{ honda_type.name }}
                     </option>
                     {% endfor %}
                 </select>
@@ -271,7 +271,7 @@
             </div>
             <input type="hidden" name="load_suggestions" id="loadSuggestionsInput" value="false">
             {% else %}
-            <div class="alert alert-warning">Vui lòng chọn loại laptop để đánh giá.</div>
+            <div class="alert alert-warning">Vui lòng chọn loại honda để đánh giá.</div>
             {% endif %}
         </form>
 
