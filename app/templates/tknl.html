@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Đánh giá Hiệu năng
+Đánh giá Tiết kiệm nhiên liệu
 {% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
     <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
         <h5 class="">Dữ liệu tham khảo của các honda theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
         <div class="mb-3">
-            <select class="form-select" id="laptopPerformanceFilterTab">
+            <select class="form-select" id="hondaPerformanceFilterTab">
                 <option value="Văn phòng">Văn phòng</option>
                 <option value="Gaming">Gaming</option>
             </select>
@@ -26,14 +26,15 @@
         <div class="tab-content mt-3" id="performanceTabsContent">
             <div class="tab-pane fade show active" id="performanceTable" role="tabpanel" aria-labelledby="table-tab">
                 <div class="table-responsive" style="height: 420px; overflow-y: auto;">
-                    <table class="table table-bordered table-hover" id="laptopInfoTable">
+                    <table class="table table-bordered table-hover" id="hondaInfoTable">
                         <thead>
                             <tr class="text-nowrap">
                                 <th class="text-center bg-primary-subtle">Loại</th>
                                 <th class="text-center bg-primary-subtle">Tên Model</th>
-                                <th class="text-center bg-primary-subtle">CPU</th>
-                                <th class="text-center bg-primary-subtle">RAM (GB)</th>
-                                <th class="text-center bg-primary-subtle">Card Đồ Họa</th>
+                                <th class="text-center bg-primary-subtle">Kích thước (inch)</th>
+                                <th class="text-center bg-primary-subtle">Độ phân giải</th>
+                                <th class="text-center bg-primary-subtle">Công nghệ</th>
+                                <th class="text-center bg-primary-subtle">Tần số quét (Hz)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -50,146 +51,165 @@
     </div>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const laptopPerformanceFilterTab = document.getElementById('laptopPerformanceFilterTab');
-            const laptopInfoTableBody = document.getElementById('laptopInfoTable').getElementsByTagName('tbody')[0];
-            const performanceChartCanvas = document.getElementById('performanceChart');
-            let performanceChartInstance = null;
-    
-            const laptopData = [
-                { type: 'Văn phòng', model: 'Aspire 5 A515-58-54XJ', cpu: 'i5-1235U', ram: 8, gpu: 'Intel Iris Xe Graphics' },
-                { type: 'Văn phòng', model: 'Aspire 5 A514 55-374Y', cpu: 'i3-1215U', ram: 8, gpu: 'Intel UHD Graphics' },
-                { type: 'Văn phòng', model: 'Aspire 3 A315-59-31X8', cpu: 'i3-N305', ram: 8, gpu: 'Intel UHD Graphics' },
-                { type: 'Văn phòng', model: 'Swift 3 SF314-513-51HN', cpu: 'i5-1135G7', ram: 8, gpu: 'Intel Iris Xe Graphics' },
-                { type: 'Văn phòng', model: 'Swift Go SFG14 41 R9X4', cpu: 'AMD Ryzen 5 7530U', ram: 8, gpu: 'AMD Radeon Graphics' },
-                { type: 'Văn phòng', model: 'Aspire 5 Slim A514-54-51MT', cpu: 'i5-1235U', ram: 8, gpu: 'Intel Iris Xe Graphics' },
-                { type: 'Văn phòng', model: 'Aspire 3 Spin 14 ASP14-31T-313W', cpu: 'i3-N305', ram: 8, gpu: 'Intel UHD Graphics' },
-                { type: 'Văn phòng', model: 'Swift X SFX14-51G-51W1', cpu: 'i5-11320H', ram: 8, gpu: 'NVIDIA GeForce MX350' },
-                { type: 'Văn phòng', model: 'Aspire 7 A715-51G-51CB', cpu: 'i5-10300H', ram: 8, gpu: 'NVIDIA GeForce MX350' },
-                { type: 'Văn phòng', model: 'Swift 5 SF514-56T-53GX', cpu: 'i5-1240P', ram: 16, gpu: 'Intel Iris Xe Graphics' },
-                { type: 'Gaming', model: 'Nitro 5 AN515-58', cpu: 'i5-12500H', ram: 16, gpu: 'NVIDIA GeForce RTX 4050' },
-                { type: 'Gaming', model: 'Nitro 5 AN515-46', cpu: 'AMD Ryzen 5 6600H', ram: 16, gpu: 'NVIDIA GeForce RTX 3050Ti' },
-                { type: 'Gaming', model: 'Predator Helios Neo 16 PHN16-71', cpu: 'i7-13700HX', ram: 32, gpu: 'NVIDIA GeForce RTX 4070' },
-                { type: 'Gaming', model: 'Predator Helios 18 PH18-71', cpu: 'i9-13900HX', ram: 32, gpu: 'NVIDIA GeForce RTX 4090' },
-                { type: 'Gaming', model: 'Predator Triton 500 SE PT516-52s', cpu: 'i9-12900H', ram: 32, gpu: 'NVIDIA GeForce RTX 3070 Ti' },
-                { type: 'Gaming', model: 'Predator Triton 300 SE PT314-52s', cpu: 'i7-12700H', ram: 16, gpu: 'NVIDIA GeForce RTX 3060 Ti' },
-                { type: 'Gaming', model: 'Nitro 16 AN16-41', cpu: 'AMD Ryzen 7 7735HS', ram: 16, gpu: 'NVIDIA GeForce RTX 4060' },
-                { type: 'Gaming', model: 'Predator Helios 300 PH315-55', cpu: 'i7-12700H', ram: 16, gpu: 'NVIDIA GeForce RTX 3060' },
-                { type: 'Gaming', model: 'Aspire 7 A715-76G', cpu: 'i7', ram: 16, gpu: 'NVIDIA GeForce RTX 4050' },
-                { type: 'Gaming', model: 'Predator Triton 300 PT314-51', cpu: 'i7-11375H', ram: 16, gpu: 'NVIDIA GeForce RTX 3050' },
-            ];
-    
-            function getCpuPerformanceScore(cpu) {
-                if (cpu.includes('i9') || cpu.includes('Ryzen 9')) return 4;
-                if (cpu.includes('i7') || cpu.includes('Ryzen 7')) return 3;
-                if (cpu.includes('i5') || cpu.includes('Ryzen 5')) return 2;
-                return 1;
+    document.addEventListener('DOMContentLoaded', function () {
+        const hondaPerformanceFilterTab = document.getElementById('hondaPerformanceFilterTab');
+        const hondaInfoTableBody = document.getElementById('hondaInfoTable').getElementsByTagName('tbody')[0];
+        const performanceChartCanvas = document.getElementById('performanceChart');
+        let performanceChartInstance = null;
+      
+        const hondaData = [
+         { type: 'Văn phòng', model: 'Aspire 5 A515-58-54XJ', screenSize: 15.6, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 60 },
+         { type: 'Văn phòng', model: 'Aspire 5 A514 55-374Y', screenSize: 14, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 60 },
+         { type: 'Văn phòng', model: 'Aspire 3 A315-59-31X8', screenSize: 15.6, resolution: '1920 x 1080', screenTech: 'LCD', refreshRate: 60 },
+         { type: 'Văn phòng', model: 'Swift 3 SF314-513-51HN', screenSize: 14, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 60 },
+         { type: 'Văn phòng', model: 'Swift Go SFG14 41 R9X4', screenSize: 14, resolution: '2880 x 1800', screenTech: 'OLED', refreshRate: 90 },
+         { type: 'Văn phòng', model: 'Aspire 5 Slim A514-54-51MT', screenSize: 14, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 60 },
+         { type: 'Văn phòng', model: 'Aspire 3 Spin 14 ASP14-31T-313W', screenSize: 14, resolution: '1920 x 1200', screenTech: 'IPS', refreshRate: 60 },
+         { type: 'Văn phòng', model: 'Swift X SFX14-51G-51W1', screenSize: 14, resolution: '2240 x 1400', screenTech: 'IPS', refreshRate: 60 },
+         { type: 'Văn phòng', model: 'Aspire 7 A715-51G-51CB', screenSize: 15.6, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 60 },
+         { type: 'Văn phòng', model: 'Swift 5 SF514-56T-53GX', screenSize: 14, resolution: '2560 x 1600', screenTech: 'IPS', refreshRate: 60 },
+         { type: 'Gaming', model: 'Nitro 5 AN515-58', screenSize: 15.6, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 144 },
+         { type: 'Gaming', model: 'Nitro 5 AN515-46', screenSize: 15.6, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 144 },
+         { type: 'Gaming', model: 'Predator Helios Neo 16 PHN16-71', screenSize: 16, resolution: '2560 x 1600', screenTech: 'IPS', refreshRate: 165 },
+         { type: 'Gaming', model: 'Predator Helios 18 PH18-71', screenSize: 18, resolution: '1920 x 1200', screenTech: 'Mini-LED', refreshRate: 165 },
+         { type: 'Gaming', model: 'Predator Triton 500 SE PT516-52s', screenSize: 16, resolution: '2560 x 1600', screenTech: 'IPS', refreshRate: 240 },
+         { type: 'Gaming', model: 'Predator Triton 300 SE PT314-52s', screenSize: 14, resolution: '2560 x 1440', screenTech: 'IPS', refreshRate: 165 },
+         { type: 'Gaming', model: 'Nitro 16 AN16-41', screenSize: 16, resolution: '1920 x 1200', screenTech: 'IPS', refreshRate: 165 },
+         { type: 'Gaming', model: 'Predator Helios 300 PH315-55', screenSize: 15.6, resolution: '2560 x 1440', screenTech: 'IPS', refreshRate: 165 },
+         { type: 'Gaming', model: 'Aspire 7 A715-76G', screenSize: 15.6, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 144 },
+         { type: 'Gaming', model: 'Predator Triton 300 PT314-51', screenSize: 14, resolution: '1920 x 1080', screenTech: 'IPS', refreshRate: 144 },
+        ];
+      
+        function getScreenSizeScore(size) {
+         if (size >= 17) return 4;
+         if (size >= 15) return 3;
+         if (size >= 14) return 2;
+         return 1;
+        }
+      
+        function getResolutionScore(resolution) {
+         if (resolution.includes('3840')) return 5; // 4K
+         if (resolution.includes('2880') || resolution.includes('2560')) return 4; // 2.5K, 2.8K
+         if (resolution.includes('2240')) return 3;
+         if (resolution.includes('1920')) return 2; // FHD
+         return 1;
+        }
+      
+        function getScreenTechScore(tech) {
+         if (tech.toUpperCase() === 'MINI-LED' ) return 5;
+         if (tech.toUpperCase() === 'OLED') return 4;
+         if (tech.toUpperCase() === 'IPS') return 3;
+         if (tech.toUpperCase() === 'VA') return 2;
+         return 1; // LCD, TN
+        }
+      
+        function getRefreshRateScore(rate) {
+         if (rate >= 240) return 5;
+         if (rate >= 165) return 4;
+         if (rate >= 144) return 3;
+         if (rate >= 90) return 2;
+         return 1; // 60Hz
+        }
+      
+        function calculateScreenQualityScore(honda) {
+         const sizeScore = getScreenSizeScore(honda.screenSize);
+         const resolutionScore = getResolutionScore(honda.resolution);
+         const techScore = getScreenTechScore(honda.screenTech);
+         const refreshRateScore = getRefreshRateScore(honda.refreshRate);
+         return (sizeScore + resolutionScore + techScore + refreshRateScore) / 4;
+        }
+      
+        function populateTable(data) {
+         hondaInfoTableBody.innerHTML = '';
+         data.forEach(honda => {
+          const row = hondaInfoTableBody.insertRow();
+          const typeCell = row.insertCell();
+          const modelCell = row.insertCell();
+          const screenSizeCell = row.insertCell();
+          const resolutionCell = row.insertCell();
+          const screenTechCell = row.insertCell();
+          const refreshRateCell = row.insertCell();
+      
+          typeCell.classList.add('text-center', 'fw-bold');
+          screenSizeCell.classList.add('text-center');
+          resolutionCell.classList.add('text-center');
+          screenTechCell.classList.add('text-center');
+          refreshRateCell.classList.add('text-center');
+      
+          typeCell.textContent = honda.type;
+          modelCell.textContent = honda.model;
+          screenSizeCell.textContent = honda.screenSize;
+          resolutionCell.textContent = honda.resolution;
+          screenTechCell.textContent = honda.screenTech;
+          refreshRateCell.textContent = honda.refreshRate;
+         });
+        }
+      
+        function updatePerformanceChart(selectedType) {
+         const filteredData = hondaData.filter(honda => honda.type === selectedType);
+         const labels = filteredData.map(honda => honda.model);
+         const performanceData = filteredData.map(calculateScreenQualityScore);
+      
+         if (performanceChartInstance) {
+          performanceChartInstance.destroy();
+         }
+      
+         const ctx = performanceChartCanvas.getContext('2d');
+         performanceChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+           labels: labels,
+           datasets: [{
+            label: 'Điểm màn hình ước tính',
+            data: performanceData,
+            backgroundColor: 'rgba(255, 206, 86, 0.7)',
+            borderColor: 'rgba(255, 206, 86, 1)',
+            borderWidth: 1
+           }]
+          },
+          options: {
+           responsive: true,
+           scales: {
+            y: {
+             beginAtZero: true,
+             title: {
+              display: true,
+              text: 'Điểm Tiết kiệm nhiên liệu ước tính'
+             }
             }
-    
-            function getGpuPerformanceScore(gpu) {
-                if (gpu.includes('RTX 4090') || gpu.includes('RTX 3090 Ti')) return 5;
-                if (gpu.includes('RTX 4080') || gpu.includes('RTX 3080 Ti') || gpu.includes('RTX 4070 Ti') || gpu.includes('RTX 3070 Ti')) return 4;
-                if (gpu.includes('RTX 4070') || gpu.includes('RTX 3070') || gpu.includes('RTX 4060 Ti') || gpu.includes('RTX 3060 Ti')) return 3;
-                if (gpu.includes('RTX 4060') || gpu.includes('RTX 3060') || gpu.includes('RTX 4050 Ti') || gpu.includes('RTX 3050 Ti') || gpu.includes('MX')) return 2;
-                return 1; // Integrated graphics và các dòng thấp hơn
-            }
-    
-            function calculatePerformanceScore(honda) {
-                const cpuScore = getCpuPerformanceScore(honda.cpu);
-                const gpuScore = getGpuPerformanceScore(honda.gpu);
-                const ramScore = honda.ram / 8;
-                return (cpuScore + gpuScore + ramScore) / 3;
-            }
-    
-            function populateTable(data) {
-                laptopInfoTableBody.innerHTML = '';
-                data.forEach(honda => {
-                    const row = laptopInfoTableBody.insertRow();
-                    const typeCell = row.insertCell();
-                    const modelCell = row.insertCell();
-                    const cpuCell = row.insertCell();
-                    const ramCell = row.insertCell();
-                    const gpuCell = row.insertCell();
-    
-                    typeCell.classList.add('text-center', 'fw-bold');
-                    ramCell.classList.add('text-center');
-    
-                    typeCell.textContent = honda.type;
-                    modelCell.textContent = honda.model;
-                    cpuCell.textContent = honda.cpu;
-                    ramCell.textContent = honda.ram;
-                    gpuCell.textContent = honda.gpu;
-                });
-            }
-    
-            function updatePerformanceChart(selectedType) {
-                const filteredData = laptopData.filter(honda => honda.type === selectedType);
-                const labels = filteredData.map(honda => honda.model);
-                const performanceData = filteredData.map(calculatePerformanceScore);
-    
-                if (performanceChartInstance) {
-                    performanceChartInstance.destroy();
-                }
-    
-                const ctx = performanceChartCanvas.getContext('2d');
-                performanceChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Điểm hiệu năng ước tính',
-                            data: performanceData,
-                            backgroundColor: 'rgba(255, 206, 86, 0.7)',
-                            borderColor: 'rgba(255, 206, 86, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Điểm hiệu năng ước tính'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-    
-            function updateContent(selectedType) {
-                const filteredData = laptopData.filter(honda => honda.type === selectedType);
-                populateTable(filteredData);
-                updatePerformanceChart(selectedType);
-            }
-    
-            // Khởi tạo với loại mặc định
-            const defaultType = laptopPerformanceFilterTab.value;
-            updateContent(defaultType);
-    
-            // Lắng nghe sự thay đổi của bộ lọc
-            laptopPerformanceFilterTab.addEventListener('change', function () {
-                updateContent(this.value);
-            });
-    
-            // Kích hoạt tab mặc định (Bảng dữ liệu)
-            const tableTab = document.getElementById('table-tab');
-            const bsTab = new bootstrap.Tab(tableTab);
-            bsTab.show();
+           }
+          }
+         });
+        }
+      
+        function updateContent(selectedType) {
+         const filteredData = hondaData.filter(honda => honda.type === selectedType);
+         populateTable(filteredData);
+         updatePerformanceChart(selectedType);
+        }
+      
+        const defaultType = hondaPerformanceFilterTab.value;
+        updateContent(defaultType);
+      
+        hondaPerformanceFilterTab.addEventListener('change', function () {
+         updateContent(this.value);
         });
-    </script>
+      
+        const tableTab = document.getElementById('table-tab');
+        const bsTab = new bootstrap.Tab(tableTab);
+        bsTab.show();
+       });
+       </script>
 
     <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <form method="POST" action="{{ url_for('hieunang.hieunang_page') }}" id="alternativeComparisonForm">
+        <form method="POST" action="{{ url_for('tknl.tknl_page') }}" id="alternativeComparisonForm">
             <div>
                 <h5 class="">Chọn loại honda để đánh giá theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
-                <select class="form-select" id="laptopType" name="selected_laptop_type_id"
+                <select class="form-select" id="hondaType" name="selected_honda_type_id"
                     onchange="this.form.submit()">
                     <option value="">-- Chọn loại honda --</option>
                     {% for honda_type in honda_types %}
-                    <option value="{{ honda_type.id }}" {% if current_laptop_type_id|string==honda_type.id|string
+                    <option value="{{ honda_type.id }}" {% if current_honda_type_id|string==honda_type.id|string
                         %}selected{% endif %}>
                         {{ honda_type.name }}
                     </option>
@@ -197,7 +217,7 @@
                 </select>
             </div>
             <hr />
-            {% if selected_laptop_type %}
+            {% if selected_honda_type %}
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
@@ -267,7 +287,7 @@
             <canvas id="weightsChart"></canvas>
         </div>
         <div class="table-responsive d-none">
-            <table class="table table-bordered table-hover" id="hieunang-weights-table">
+            <table class="table table-bordered table-hover" id="tknl-weights-table">
                 <thead>
                     <tr>
                         <th class="text-center bg-primary-subtle">Phương án</th>
@@ -363,7 +383,7 @@
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        const laptopTypeSelect = document.getElementById('laptopType');
+        const hondaTypeSelect = document.getElementById('hondaType');
         const upperInputs = document.querySelectorAll('.upper-input');
         const resetMatrixToOneButton = document.getElementById('resetMatrixToOne');
         const calculateButton = document.getElementById('calculateButton');
@@ -422,7 +442,7 @@
 
         const saveMatrixToLocalStorage = () => {
             const weightsData = {};
-            const weightTableBodyRows = document.querySelectorAll('#hieunang-weights-table tbody tr');
+            const weightTableBodyRows = document.querySelectorAll('#tknl-weights-table tbody tr');
             if (weightTableBodyRows.length > 0) {
                 weightTableBodyRows.forEach(row => {
                     const alternativeName = row.querySelector('strong').textContent;
@@ -430,7 +450,7 @@
                     weightsData[alternativeName] = weightValue;
                 });
                 console.log("Dữ liệu trọng số chuẩn bị lưu:", weightsData);
-                localStorage.setItem('hieunang_alternative_weights', JSON.stringify(weightsData));
+                localStorage.setItem('tknl_alternative_weights', JSON.stringify(weightsData));
             } else {
                 console.log("Không tìm thấy bảng trọng số để lưu.");
             }
@@ -438,7 +458,7 @@
 
         // Tải giá trị ma trận từ Local Storage
         const loadMatrixFromLocalStorage = () => {
-            const storedMatrix = localStorage.getItem('hieunang_comparison_matrix');
+            const storedMatrix = localStorage.getItem('tknl_comparison_matrix');
             if (storedMatrix) {
                 const matrixValues = JSON.parse(storedMatrix);
                 upperInputs.forEach(input => { // Chỉ duyệt qua các ô nửa trên
@@ -472,7 +492,7 @@
                     }
                 }
             });
-            localStorage.removeItem('hieunang_comparison_matrix'); // Xóa dữ liệu đã lưu nếu đặt lại
+            localStorage.removeItem('tknl_comparison_matrix'); // Xóa dữ liệu đã lưu nếu đặt lại
         });
 
         suggestValuesButton.addEventListener('click', function () {
@@ -492,7 +512,7 @@
         // Gọi saveMatrixToLocalStorage khi trang đã tải hoàn toàn, sau khi tính toán
         window.addEventListener('load', function () {
             const isCalculating = loadSuggestionsInput.value === 'false' && !Array.from(upperInputs).some(input => input.classList.contains('is-invalid'));
-            if (document.getElementById('hieunang-weights-table') && isCalculating) {
+            if (document.getElementById('tknl-weights-table') && isCalculating) {
                 saveMatrixToLocalStorage();
             }
         });

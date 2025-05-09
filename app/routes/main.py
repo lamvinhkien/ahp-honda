@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 from flask import Blueprint, render_template, request, session, send_file
 from app import db
-from app.models import Criteria, Alternatives, AlternativeComparison, LaptopType
+from app.models import Criteria, Alternatives, AlternativeComparison, HondaType
 import numpy as np
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -82,7 +82,7 @@ def generate_comparison_matrix_data(criteria, submitted_values=None, input_error
 @main_bp.route("/", methods=["GET", "POST"])
 def home_page():
     criteria = Criteria.query.all()
-    honda_types = LaptopType.query.all()
+    honda_types = HondaType.query.all()
     alternatives = []
     weights = session.get('weights')
     cr = session.get('cr')
@@ -90,20 +90,20 @@ def home_page():
     submitted_values = session.get('criteria_comparison_values', {})
     input_errors = {}
     ranked_alternatives = session.get('ranked_alternatives', []) # Lấy từ session
-    selected_laptop_type_id = request.form.get('selected_laptop_type_id') or session.get('selected_laptop_type_id')
-    selected_laptop_type = LaptopType.query.get(selected_laptop_type_id) if selected_laptop_type_id else None
+    selected_honda_type_id = request.form.get('selected_honda_type_id') or session.get('selected_honda_type_id')
+    selected_honda_type = HondaType.query.get(selected_honda_type_id) if selected_honda_type_id else None
 
     criteria_names_list = [c.name for c in criteria]
     n = len(criteria)
     allowed_values_str = ["1/9", "1/8", "1/7", "1/6", "1/5", "1/4", "1/3", "1/2", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
     if request.method == "POST":
-        session['selected_laptop_type_id'] = request.form.get('selected_laptop_type_id')
-        if not selected_laptop_type_id:
+        session['selected_honda_type_id'] = request.form.get('selected_honda_type_id')
+        if not selected_honda_type_id:
             error = "Vui lòng chọn loại honda trước khi tính toán."
         else:
-            selected_laptop_type = LaptopType.query.get(selected_laptop_type_id)
-            alternatives = Alternatives.query.filter_by(laptop_type_id=selected_laptop_type_id).all()
+            selected_honda_type = HondaType.query.get(selected_honda_type_id)
+            alternatives = Alternatives.query.filter_by(honda_type_id=selected_honda_type_id).all()
             submitted_values_from_form = request.form.to_dict()
             session['criteria_comparison_values'] = submitted_values_from_form
             comparison_matrix = np.ones((n, n), dtype=float)
@@ -157,7 +157,7 @@ def home_page():
         error=error,
         ranked_alternatives=ranked_alternatives,
         honda_types=honda_types,
-        selected_laptop_type=selected_laptop_type,
+        selected_honda_type=selected_honda_type,
     )
 
 
@@ -170,8 +170,8 @@ def update_session():
 
 @main_bp.route("/export_pdf")
 def export_pdf():
-    selected_laptop_type_id = session.get('selected_laptop_type_id')
-    selected_laptop_type = LaptopType.query.get(selected_laptop_type_id)
+    selected_honda_type_id = session.get('selected_honda_type_id')
+    selected_honda_type = HondaType.query.get(selected_honda_type_id)
     criteria = Criteria.query.all()
     criteria_names = [c.name for c in criteria]
     weights = session.get('weights')
@@ -189,12 +189,12 @@ def export_pdf():
     story = []
 
     # Tiêu đề
-    story.append(Paragraph("<b>Kết quả phân tích lựa chọn Honda Acer</b>", styles['h1']))
+    story.append(Paragraph("<b>Kết quả phân tích lựa chọn Honda</b>", styles['h1']))
     story.append(Spacer(1, 12))
 
     # Loại honda đã chọn
-    if selected_laptop_type:
-        story.append(Paragraph(f"<b>Loại honda đã chọn:</b> {selected_laptop_type.name}", styles['h2']))
+    if selected_honda_type:
+        story.append(Paragraph(f"<b>Loại honda đã chọn:</b> {selected_honda_type.name}", styles['h2']))
         story.append(Spacer(1, 12))
 
     # Bảng ma trận so sánh cặp tiêu chí

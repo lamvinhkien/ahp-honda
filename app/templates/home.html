@@ -20,10 +20,10 @@ So sánh tiêu chí
         </div>
         <hr/>
         <form method="POST" action="{{ url_for('main.home_page') }}">
-            <select class="form-select" id="laptopType" name="selected_laptop_type_id" onchange="this.form.submit()">
+            <select class="form-select" id="hondaType" name="selected_honda_type_id" onchange="this.form.submit()">
                 <option value="">-- Chọn loại honda --</option>
                 {% for honda_type in honda_types %}
-                <option value="{{ honda_type.id }}" {% if selected_laptop_type and selected_laptop_type.id|string == honda_type.id|string %}selected{% endif %}>
+                <option value="{{ honda_type.id }}" {% if selected_honda_type and selected_honda_type.id|string == honda_type.id|string %}selected{% endif %}>
                     {{ honda_type.name }}
                 </option>
                 {% endfor %}
@@ -32,16 +32,16 @@ So sánh tiêu chí
     </div>
 
     <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Đánh giá các tiêu chí trong việc lựa chọn honda {% if selected_laptop_type %} {{ selected_laptop_type.name }} {% else %} Acer {% endif %}</h5>
+        <h5 class="">Đánh giá các tiêu chí trong việc lựa chọn xe máy Honda {% if selected_honda_type %} {{ selected_honda_type.name }} {% else %} Honda {% endif %}</h5>
         <hr/>
         <div class="fst-italic" style="font-size: 17px;">
-            - Có 7 tiêu chỉ để đánh giá bao gồm: Hiệu năng (CPU, RAM, Card đồ hoạ), Chi phí, Thiết kế (Trọng lượng, Chất
-            Liệu, Độ mỏng), Màn hình (Kích thước, Độ phân giải, Công nghệ màn hình), Thời lượng sử dụng (Pin), Thời gian bảo
-            hành, Dung lượng (Ổ cứng).
+            - Có 7 tiêu chỉ để đánh giá bao gồm: Động cơ (CPU, RAM, Card đồ hoạ), Chi phí, Thiết kế (Trọng lượng, Chất
+            Liệu, Độ mỏng), Tiết kiệm nhiên liệu (Kích thước, Độ phân giải, Công nghệ màn hình), Thời lượng sử dụng (Pin), Thời gian bảo
+            hành, Tiện ích (Ổ cứng).
         </div>
         <hr/>
         <form method="POST" action="{{ url_for('main.home_page') }}" id="criteriaForm">
-            <input type="hidden" name="selected_laptop_type_id" id="selectedLaptopTypeId" value="{{ selected_laptop_type_id|default('') }}">
+            <input type="hidden" name="selected_honda_type_id" id="selectedHondaTypeId" value="{{ selected_honda_type_id|default('') }}">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
@@ -148,7 +148,7 @@ So sánh tiêu chí
     {% endif %}
 
     <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Xếp hạng các phương án lựa chọn theo loại {% if selected_laptop_type %} {{ selected_laptop_type.name }} {% endif %}</h5>
+        <h5 class="">Xếp hạng các phương án lựa chọn theo loại {% if selected_honda_type %} {{ selected_honda_type.name }} {% endif %}</h5>
         <hr/>
         <div class="d-flex justify-content-center">
             <div style="width: 100%; height: 100%;">
@@ -182,8 +182,8 @@ So sánh tiêu chí
 
     document.addEventListener('DOMContentLoaded', function() {
         const upperInputs = document.querySelectorAll('.upper-input');
-        const laptopTypeSelect = document.getElementById('laptopType');
-        const selectedLaptopTypeIdInput = document.getElementById('selectedLaptopTypeId');
+        const hondaTypeSelect = document.getElementById('hondaType');
+        const selectedHondaTypeIdInput = document.getElementById('selectedHondaTypeId');
         const resetMatrixToOneButton = document.getElementById('resetMatrixToOne');
         const calculateButton = document.getElementById('calculateButton');
         const storedDataKey = 'ahpFormData';
@@ -192,7 +192,7 @@ So sánh tiêu chí
         // Lấy dữ liệu đã lưu từ Local Storage
         const storedData = JSON.parse(localStorage.getItem(storedDataKey) || '{}');
         const comparisonValues = storedData.comparisonValues || {};
-        const selectedLaptopType = storedData.selectedLaptopType;
+        const selectedHondaType = storedData.selectedHondaType;
 
         // Hàm kiểm tra giá trị input
         const isInputValueValid = (value) => {
@@ -257,9 +257,9 @@ So sánh tiêu chí
             }
         });
 
-        if (selectedLaptopType) {
-            laptopTypeSelect.value = selectedLaptopType;
-            selectedLaptopTypeIdInput.value = selectedLaptopType;
+        if (selectedHondaType) {
+            hondaTypeSelect.value = selectedHondaType;
+            selectedHondaTypeIdInput.value = selectedHondaType;
         }
 
         // Lưu giá trị ma trận vào Local Storage và cập nhật ô nghịch đảo khi input thay đổi
@@ -279,10 +279,10 @@ So sánh tiêu chí
         });
 
         // Lưu giá trị loại honda vào Local Storage và hidden input khi có thay đổi
-        laptopTypeSelect.addEventListener('change', function() {
-            storedData.selectedLaptopType = this.value;
+        hondaTypeSelect.addEventListener('change', function() {
+            storedData.selectedHondaType = this.value;
             localStorage.setItem(storedDataKey, JSON.stringify(storedData));
-            selectedLaptopTypeIdInput.value = this.value;
+            selectedHondaTypeIdInput.value = this.value;
         });
 
         // Xử lý sự kiện click của nút "Đặt lại về 1"
@@ -312,7 +312,7 @@ So sánh tiêu chí
 
         // Xử lý sự kiện click của nút "Tính toán trọng số"
         calculateButton.addEventListener('click', function(event) {
-            if (!laptopTypeSelect.value) {
+            if (!hondaTypeSelect.value) {
                 event.preventDefault();
                 alert('Vui lòng chọn loại honda trước khi tính toán.');
                 return;
@@ -375,13 +375,11 @@ So sánh tiêu chí
         }
 
         const convertCriteriaName = (name) => {
-            if(name === "Hiệu năng") return "hieunang";
+            if(name === "Động cơ") return "dongco";
             if(name === "Chi phí") return "chiphi";
             if(name === "Thiết kế") return "thietke";
-            if(name === "Màn hình") return "manhinh";
-            if(name === "Thời lượng sử dụng") return "tlsd";
-            if(name === "Thời gian bảo hành") return "tgbh";
-            if(name === "Dung lượng") return "dungluong";
+            if(name === "Tiết kiệm nhiên liệu") return "tknl";
+            if(name === "Tiện ích") return "tienich";
             return name;
         };
 

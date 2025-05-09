@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Đánh giá Thời lượng sử dụng
+Đánh giá Tiện ích
 {% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
     <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
         <h5 class="">Dữ liệu tham khảo của các honda theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
         <div class="mb-3">
-            <select class="form-select" id="laptopPerformanceFilterTab">
+            <select class="form-select" id="hondaPerformanceFilterTab">
                 <option value="Văn phòng">Văn phòng</option>
                 <option value="Gaming">Gaming</option>
             </select>
@@ -26,12 +26,13 @@
         <div class="tab-content mt-3" id="performanceTabsContent">
             <div class="tab-pane fade show active" id="performanceTable" role="tabpanel" aria-labelledby="table-tab">
                 <div class="table-responsive" style="height: 420px; overflow-y: auto;">
-                    <table class="table table-bordered table-hover" id="laptopInfoTable">
+                    <table class="table table-bordered table-hover" id="hondaInfoTable">
                         <thead>
                             <tr class="text-nowrap">
                                 <th class="text-center bg-primary-subtle">Loại</th>
                                 <th class="text-center bg-primary-subtle">Tên Model</th>
-                                <th class="text-center bg-primary-subtle">Pin (Giờ)</th>
+                                <th class="text-center bg-primary-subtle">Tiện ích (GB)</th>
+                                <th class="text-center bg-primary-subtle">Loại ổ cứng</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -49,77 +50,80 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-        const laptopBatteryFilterTab = document.getElementById('laptopPerformanceFilterTab'); // Giữ nguyên ID
-        const laptopInfoTableBody = document.getElementById('laptopInfoTable').getElementsByTagName('tbody')[0];
-        const batteryChartCanvas = document.getElementById('performanceChart'); // Giữ nguyên ID
-        let batteryChartInstance = null;
+        const hondaStorageFilterTab = document.getElementById('hondaPerformanceFilterTab'); // Giữ nguyên ID
+        const hondaInfoTableBody = document.getElementById('hondaInfoTable').getElementsByTagName('tbody')[0];
+        const storageChartCanvas = document.getElementById('performanceChart'); // Giữ nguyên ID
+        let storageChartInstance = null;
 
-        const batteryData = [
-        { type: 'Văn phòng', model: 'Aspire 5 A515-58-54XJ', batteryLife: 8 },
-        { type: 'Văn phòng', model: 'Aspire 5 A514 55-374Y', batteryLife: 7 },
-        { type: 'Văn phòng', model: 'Aspire 3 A315-59-31X8', batteryLife: 6 },
-        { type: 'Văn phòng', model: 'Swift 3 SF314-513-51HN', batteryLife: 12 },
-        { type: 'Văn phòng', model: 'Swift Go SFG14 41 R9X4', batteryLife: 10 },
-        { type: 'Văn phòng', model: 'Aspire 5 Slim A514-54-51MT', batteryLife: 9 },
-        { type: 'Văn phòng', model: 'Aspire 3 Spin 14 ASP14-31T-313W', batteryLife: 8 },
-        { type: 'Văn phòng', model: 'Swift X SFX14-51G-51W1', batteryLife: 10 },
-        { type: 'Văn phòng', model: 'Aspire 7 A715-51G-51CB', batteryLife: 7 },
-        { type: 'Văn phòng', model: 'Swift 5 SF514-56T-53GX', batteryLife: 10 },
-        { type: 'Gaming', model: 'Nitro 5 AN515-58', batteryLife: 6 },
-        { type: 'Gaming', model: 'Nitro 5 AN515-46', batteryLife: 5 },
-        { type: 'Gaming', model: 'Predator Helios Neo 16 PHN16-71', batteryLife: 5 },
-        { type: 'Gaming', model: 'Predator Helios 18 PH18-71', batteryLife: 4 },
-        { type: 'Gaming', model: 'Predator Triton 500 SE PT516-52s', batteryLife: 8 },
-        { type: 'Gaming', model: 'Predator Triton 300 SE PT314-52s', batteryLife: 9 },
-        { type: 'Gaming', model: 'Nitro 16 AN16-41', batteryLife: 5 },
-        { type: 'Gaming', model: 'Predator Helios 300 PH315-55', batteryLife: 5 },
-        { type: 'Gaming', model: 'Aspire 7 A715-76G', batteryLife: 7 },
-        { type: 'Gaming', model: 'Predator Triton 300 PT314-51', batteryLife: 8 },
+        const storageData = [
+        { type: 'Văn phòng', model: 'Aspire 5 A515-58-54XJ', storage: 512, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Aspire 5 A514 55-374Y', storage: 256, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Aspire 3 A315-59-31X8', storage: 256, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Swift 3 SF314-513-51HN', storage: 512, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Swift Go SFG14 41 R9X4', storage: 512, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Aspire 5 Slim A514-54-51MT', storage: 512, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Aspire 3 Spin 14 ASP14-31T-313W', storage: 256, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Swift X SFX14-51G-51W1', storage: 1000, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Aspire 7 A715-51G-51CB', storage: 512, storageType: 'SSD' },
+        { type: 'Văn phòng', model: 'Swift 5 SF514-56T-53GX', storage: 1000, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Nitro 5 AN515-58', storage: 512, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Nitro 5 AN515-46', storage: 512, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Predator Helios Neo 16 PHN16-71', storage: 1000, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Predator Helios 18 PH18-71', storage: 2000, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Predator Triton 500 SE PT516-52s', storage: 1000, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Predator Triton 300 SE PT314-52s', storage: 1000, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Nitro 16 AN16-41', storage: 1000, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Predator Helios 300 PH315-55', storage: 1000, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Aspire 7 A715-76G', storage: 512, storageType: 'SSD' },
+        { type: 'Gaming', model: 'Predator Triton 300 PT314-51', storage: 1000, storageType: 'SSD' },
         ];
 
-        function getBatteryScore(batteryLife) {
-        // Đánh giá thời lượng pin theo thang điểm (ví dụ: 1 - Kém, 5 - Rất tốt)
-        if (batteryLife < 6) return 1;
-        if (batteryLife < 8) return 2;
-        if (batteryLife < 10) return 3;
-        if (batteryLife < 12) return 4;
+        function getStorageScore(storageGB) {
+        // Đánh giá dung lượng ổ cứng theo thang điểm (ví dụ: 1 - Ít, 5 - Nhiều)
+        if (storageGB < 256) return 1;
+        if (storageGB === 256) return 2;
+        if (storageGB === 512) return 3;
+        if (storageGB === 1000) return 4;
         return 5;
         }
 
         function populateTable(data) {
-        laptopInfoTableBody.innerHTML = '';
+        hondaInfoTableBody.innerHTML = '';
         data.forEach(honda => {
-        const row = laptopInfoTableBody.insertRow();
+        const row = hondaInfoTableBody.insertRow();
         const typeCell = row.insertCell();
         const modelCell = row.insertCell();
-        const batteryCell = row.insertCell(); // Chỉ hiển thị loại, model và thời lượng pin
+        const storageCell = row.insertCell();
+        const storageTypeCell = row.insertCell(); // Thêm cột loại ổ cứng
 
         typeCell.classList.add('text-center', 'fw-bold');
-        batteryCell.classList.add('text-center');
+        storageCell.classList.add('text-center');
+        storageTypeCell.classList.add('text-center');
 
         typeCell.textContent = honda.type;
         modelCell.textContent = honda.model;
-        batteryCell.textContent = `${honda.batteryLife}`;
+        storageCell.textContent = `${honda.storage}`;
+        storageTypeCell.textContent = honda.storageType;
         });
         }
 
         function updatePerformanceChart(selectedType) {
-        const filteredData = batteryData.filter(honda => honda.type === selectedType);
+        const filteredData = storageData.filter(honda => honda.type === selectedType);
         const labels = filteredData.map(honda => honda.model);
-        const batteryScores = filteredData.map(honda => getBatteryScore(honda.batteryLife));
+        const storageScores = filteredData.map(honda => getStorageScore(honda.storage));
 
-        if (batteryChartInstance) {
-        batteryChartInstance.destroy();
+        if (storageChartInstance) {
+        storageChartInstance.destroy();
         }
 
-        const ctx = batteryChartCanvas.getContext('2d');
-        batteryChartInstance = new Chart(ctx, {
+        const ctx = storageChartCanvas.getContext('2d');
+        storageChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
         labels: labels,
         datasets: [{
-        label: 'Điểm thời lượng pin ước tính',
-        data: batteryScores,
+        label: 'Điểm dung lượng ước tính',
+        data: storageScores,
         backgroundColor: 'rgba(255, 206, 86, 0.7)',
         borderColor: 'rgba(255, 206, 86, 1)',
         borderWidth: 1
@@ -133,17 +137,17 @@
         ticks: {
                 stepSize: 1,
                 callback: function(value) {
-                if (value === 1) return 'Kém';
-                if (value === 2) return 'Trung bình thấp';
+                if (value === 1) return 'Rất ít';
+                if (value === 2) return 'Ít';
                 if (value === 3) return 'Trung bình';
-                if (value === 4) return 'Tốt';
-                if (value === 5) return 'Rất tốt';
+                if (value === 4) return 'Nhiều';
+                if (value === 5) return 'Rất nhiều';
                 return '';
                 }
         },
         title: {
                 display: true,
-                text: 'Đánh giá Thời lượng pin'
+                text: 'Đánh giá Tiện ích ổ cứng'
         }
         }
         }
@@ -152,15 +156,15 @@
         }
 
         function updateContent(selectedType) {
-        const filteredData = batteryData.filter(honda => honda.type === selectedType);
+        const filteredData = storageData.filter(honda => honda.type === selectedType);
         populateTable(filteredData);
         updatePerformanceChart(selectedType);
         }
 
-        const defaultType = laptopBatteryFilterTab.value;
+        const defaultType = hondaStorageFilterTab.value;
         updateContent(defaultType);
 
-        laptopBatteryFilterTab.addEventListener('change', function () {
+        hondaStorageFilterTab.addEventListener('change', function () {
         updateContent(this.value);
         });
 
@@ -171,14 +175,14 @@
     </script>
 
     <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <form method="POST" action="{{ url_for('tlsd.tlsd_page') }}" id="alternativeComparisonForm">
+        <form method="POST" action="{{ url_for('tienich.tienich_page') }}" id="alternativeComparisonForm">
             <div>
                 <h5 class="">Chọn loại honda để đánh giá theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
-                <select class="form-select" id="laptopType" name="selected_laptop_type_id"
+                <select class="form-select" id="hondaType" name="selected_honda_type_id"
                     onchange="this.form.submit()">
                     <option value="">-- Chọn loại honda --</option>
                     {% for honda_type in honda_types %}
-                    <option value="{{ honda_type.id }}" {% if current_laptop_type_id|string==honda_type.id|string
+                    <option value="{{ honda_type.id }}" {% if current_honda_type_id|string==honda_type.id|string
                         %}selected{% endif %}>
                         {{ honda_type.name }}
                     </option>
@@ -186,7 +190,7 @@
                 </select>
             </div>
             <hr />
-            {% if selected_laptop_type %}
+            {% if selected_honda_type %}
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
@@ -256,7 +260,7 @@
             <canvas id="weightsChart"></canvas>
         </div>
         <div class="table-responsive d-none">
-            <table class="table table-bordered table-hover" id="tlsd-weights-table">
+            <table class="table table-bordered table-hover" id="tienich-weights-table">
                 <thead>
                     <tr>
                         <th class="text-center bg-primary-subtle">Phương án</th>
@@ -352,7 +356,7 @@
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        const laptopTypeSelect = document.getElementById('laptopType');
+        const hondaTypeSelect = document.getElementById('hondaType');
         const upperInputs = document.querySelectorAll('.upper-input');
         const resetMatrixToOneButton = document.getElementById('resetMatrixToOne');
         const calculateButton = document.getElementById('calculateButton');
@@ -411,7 +415,7 @@
 
         const saveMatrixToLocalStorage = () => {
             const weightsData = {};
-            const weightTableBodyRows = document.querySelectorAll('#tlsd-weights-table tbody tr');
+            const weightTableBodyRows = document.querySelectorAll('#tienich-weights-table tbody tr');
             if (weightTableBodyRows.length > 0) {
                 weightTableBodyRows.forEach(row => {
                     const alternativeName = row.querySelector('strong').textContent;
@@ -419,7 +423,7 @@
                     weightsData[alternativeName] = weightValue;
                 });
                 console.log("Dữ liệu trọng số chuẩn bị lưu:", weightsData);
-                localStorage.setItem('tlsd_alternative_weights', JSON.stringify(weightsData));
+                localStorage.setItem('tienich_alternative_weights', JSON.stringify(weightsData));
             } else {
                 console.log("Không tìm thấy bảng trọng số để lưu.");
             }
@@ -427,7 +431,7 @@
 
         // Tải giá trị ma trận từ Local Storage
         const loadMatrixFromLocalStorage = () => {
-            const storedMatrix = localStorage.getItem('tlsd_comparison_matrix');
+            const storedMatrix = localStorage.getItem('tienich_comparison_matrix');
             if (storedMatrix) {
                 const matrixValues = JSON.parse(storedMatrix);
                 upperInputs.forEach(input => { // Chỉ duyệt qua các ô nửa trên
@@ -461,7 +465,7 @@
                     }
                 }
             });
-            localStorage.removeItem('tlsd_comparison_matrix'); // Xóa dữ liệu đã lưu nếu đặt lại
+            localStorage.removeItem('tienich_comparison_matrix'); // Xóa dữ liệu đã lưu nếu đặt lại
         });
 
         suggestValuesButton.addEventListener('click', function () {
@@ -481,7 +485,7 @@
         // Gọi saveMatrixToLocalStorage khi trang đã tải hoàn toàn, sau khi tính toán
         window.addEventListener('load', function () {
             const isCalculating = loadSuggestionsInput.value === 'false' && !Array.from(upperInputs).some(input => input.classList.contains('is-invalid'));
-            if (document.getElementById('tlsd-weights-table') && isCalculating) {
+            if (document.getElementById('tienich-weights-table') && isCalculating) {
                 saveMatrixToLocalStorage();
             }
         });

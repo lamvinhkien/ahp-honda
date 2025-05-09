@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, session, jsonify
 from app import db
-from app.models import Alternatives, AlternativeComparison, LaptopType, Criteria
+from app.models import Alternatives, AlternativeComparison, HondaType, Criteria
 import numpy as np
 
-dungluong_bp = Blueprint("dungluong", __name__, url_prefix="/dung-luong")
+tknl_bp = Blueprint("tknl", __name__, url_prefix="/tknl")
 
 preference_scale = {
     1 / 9: "1/9 - Ít quan trọng tuyệt đối hơn nhiều",
@@ -40,14 +40,14 @@ def calculate_ahp_weights(comparison_matrix, alternative_names):
     CR = CI / RI if RI != 0 else 0
     return weights, CR
 
-def get_suggested_preference(alt1_id, alt2_id, criteria_id, laptop_type_id):
+def get_suggested_preference(alt1_id, alt2_id, criteria_id, honda_type_id):
     comparison = AlternativeComparison.query.filter(
-        (AlternativeComparison.alternative1_id == alt1_id) & (AlternativeComparison.alternative2_id == alt2_id) & (AlternativeComparison.criteria_id == criteria_id) & (AlternativeComparison.laptop_type_id == laptop_type_id)
+        (AlternativeComparison.alternative1_id == alt1_id) & (AlternativeComparison.alternative2_id == alt2_id) & (AlternativeComparison.criteria_id == criteria_id) & (AlternativeComparison.honda_type_id == honda_type_id)
     ).first()
     if comparison:
         return comparison.preference_value
     comparison_reversed = AlternativeComparison.query.filter(
-        (AlternativeComparison.alternative1_id == alt2_id) & (AlternativeComparison.alternative2_id == alt1_id) & (AlternativeComparison.criteria_id == criteria_id) & (AlternativeComparison.laptop_type_id == laptop_type_id)
+        (AlternativeComparison.alternative1_id == alt2_id) & (AlternativeComparison.alternative2_id == alt1_id) & (AlternativeComparison.criteria_id == criteria_id) & (AlternativeComparison.honda_type_id == honda_type_id)
     ).first()
     if comparison_reversed and comparison_reversed.preference_value != 0:
         return 1 / comparison_reversed.preference_value
@@ -100,7 +100,7 @@ def float_to_ahp_scale(value, tolerance=1e-6):
     else:
         return f"{value:.4g}"
 
-def generate_alternative_comparison_matrix_data(alternatives, criteria_id, laptop_type_id, load_suggestions=False, submitted_values=None, input_errors=None):
+def generate_alternative_comparison_matrix_data(alternatives, criteria_id, honda_type_id, load_suggestions=False, submitted_values=None, input_errors=None):
     n = len(alternatives)
     comparison_matrix_data = [[None for _ in range(n)] for _ in range(n)]
 
@@ -109,7 +109,7 @@ def generate_alternative_comparison_matrix_data(alternatives, criteria_id, lapto
             alt1 = alternatives[i]
             alt2 = alternatives[j]
             comparison_id = f"comparison_{alt1.id}_{alt2.id}"
-            suggested_value_float = get_suggested_preference(alt1.id, alt2.id, criteria_id, laptop_type_id)
+            suggested_value_float = get_suggested_preference(alt1.id, alt2.id, criteria_id, honda_type_id)
 
             default_value = "1"
             current_value = submitted_values.get(comparison_id, default_value) if submitted_values else default_value
@@ -146,22 +146,22 @@ def generate_alternative_comparison_matrix_data(alternatives, criteria_id, lapto
 
     return comparison_matrix_data
 
-@dungluong_bp.route("/", methods=["GET", "POST"])
-def dungluong_page():
-    criteria_name = "Dung lượng"
+@tknl_bp.route("/", methods=["GET", "POST"])
+def tknl_page():
+    criteria_name = "Tiết kiệm nhiên liệu"
     criteria = Criteria.query.filter_by(name=criteria_name).first()
-    honda_types = LaptopType.query.all()
-    selected_laptop_type_id = request.form.get('selected_laptop_type_id') or request.args.get('selected_laptop_type_id') or session.get('dungluong_selected_laptop_type_id')
-    selected_laptop_type = LaptopType.query.get(selected_laptop_type_id)
+    honda_types = HondaType.query.all()
+    selected_honda_type_id = request.form.get('selected_honda_type_id') or request.args.get('selected_honda_type_id') or session.get('tknl_selected_honda_type_id')
+    selected_honda_type = HondaType.query.get(selected_honda_type_id)
     alternatives = []
-    if selected_laptop_type_id:
-        session['dungluong_selected_laptop_type_id'] = selected_laptop_type_id
-        alternatives = Alternatives.query.filter_by(laptop_type_id=selected_laptop_type_id).all()
+    if selected_honda_type_id:
+        session['tknl_selected_honda_type_id'] = selected_honda_type_id
+        alternatives = Alternatives.query.filter_by(honda_type_id=selected_honda_type_id).all()
 
-    weights = session.get('dungluong_weights')
-    cr = session.get('dungluong_cr')
+    weights = session.get('tknl_weights')
+    cr = session.get('tknl_cr')
     error = None
-    submitted_values = session.get('dungluong_comparison_values', {})
+    submitted_values = session.get('tknl_comparison_values', {})
     input_errors = {}
     alternative_names = [alt.name for alt in alternatives]
     n = len(alternatives)
@@ -172,9 +172,9 @@ def dungluong_page():
 
     load_suggestions = request.form.get('load_suggestions') == 'true'
 
-    if request.method == "POST" and criteria and selected_laptop_type:
+    if request.method == "POST" and criteria and selected_honda_type:
         submitted_values_from_form = request.form.to_dict()
-        session['dungluong_comparison_values'] = submitted_values_from_form
+        session['tknl_comparison_values'] = submitted_values_from_form
         comparison_matrix = np.ones((n, n), dtype=float)
         valid_input = True
 
@@ -208,24 +208,24 @@ def dungluong_page():
             weights_calculated, cr_calculated = calculate_ahp_weights(comparison_matrix, alternative_names)
             weights = weights_calculated.tolist() if weights_calculated is not None else None
             cr = cr_calculated
-            session['dungluong_weights'] = weights
-            session['dungluong_cr'] = cr
+            session['tknl_weights'] = weights
+            session['tknl_cr'] = cr
             session['alternative_weights'] = session.get('alternative_weights', {})
             if weights:
-                session['alternative_weights']['dungluong'] = dict(zip(alternative_names, weights))
+                session['alternative_weights']['tknl'] = dict(zip(alternative_names, weights))
             else:
-                if 'dungluong' in session['alternative_weights']:
-                    del session['alternative_weights']['dungluong']
+                if 'tknl' in session['alternative_weights']:
+                    del session['alternative_weights']['tknl']
 
             if cr >= 0.10:
                 error = "Tỷ số nhất quán (CR) vượt quá 10%. Vui lòng xem xét lại các đánh giá của bạn."
         else:
             error = "Vui lòng sửa các lỗi nhập liệu."
 
-        comparison_matrix_data = generate_alternative_comparison_matrix_data(alternatives, criteria.id, selected_laptop_type_id, load_suggestions, submitted_values_from_form, input_errors)
+        comparison_matrix_data = generate_alternative_comparison_matrix_data(alternatives, criteria.id, selected_honda_type_id, load_suggestions, submitted_values_from_form, input_errors)
 
-    elif criteria and selected_laptop_type_id:
-        comparison_matrix_data = generate_alternative_comparison_matrix_data(alternatives, criteria.id, selected_laptop_type_id, load_suggestions, session.get('dungluong_comparison_values'))
+    elif criteria and selected_honda_type_id:
+        comparison_matrix_data = generate_alternative_comparison_matrix_data(alternatives, criteria.id, selected_honda_type_id, load_suggestions, session.get('tknl_comparison_values'))
     else:
         comparison_matrix_data = generate_alternative_comparison_matrix_data(alternatives, 0, 0) # Placeholder if no honda type selected
 
@@ -234,7 +234,7 @@ def dungluong_page():
         ranked_alternative_weights = sorted(zip(alternative_names, weights), key=lambda x: x[1], reverse=True)
 
     return render_template(
-        "dungluong.html",
+        "tknl.html",
         comparison_matrix=comparison_matrix_data,
         alternative_names=alternative_names,
         allowed_values=allowed_values_str,
@@ -242,8 +242,8 @@ def dungluong_page():
         cr=cr,
         error=error,
         ranked_alternative_weights=ranked_alternative_weights,
-        selected_laptop_type=selected_laptop_type,
+        selected_honda_type=selected_honda_type,
         criteria_name=criteria_name,
         honda_types=honda_types,
-        current_laptop_type_id=selected_laptop_type_id
+        current_honda_type_id=selected_honda_type_id
     )
