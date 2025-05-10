@@ -5,9 +5,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mb-3">
+    <h3 class="text-center">Ma trận phương án theo tiêu chí: <span class="text-uppercase text-primary">{{ criteria_name }}</span></h3>
     <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Dữ liệu trực quan hoá các dòng xe theo tiêu chí: <strong class="text-primary">{{ criteria_name }}</strong></h5>
+        <h5 class="text-center">Dữ liệu trực quan hoá các dòng xe</h5>
         <div class="mb-3">
             <select class="form-select" id="hondaPerformanceFilterTab">
                 <option value="Xe số">Xe số</option>
@@ -29,8 +30,8 @@
                         <thead>
                             <tr class="text-nowrap">
                                 <th class="text-center">Loại</th>
-                                <th class="text-center">Tên Model</th>
-                                <th class="text-center">Giá (VNĐ)</th>
+                                <th class="text-center">Tên xe</th>
+                                <th class="text-center">Giá</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -163,10 +164,10 @@
             bsTab.show();
         });
     </script>
-        <hr>
+        <hr class="my-5" />
         <form method="POST" action="{{ url_for('chiphi.chiphi_page') }}" id="alternativeComparisonForm">
             <div>
-                <h5 class="">Chọn loại xe máy để đánh giá theo tiêu chí: <strong class="text-primary">{{ criteria_name }}</strong></h5>
+                <h5 class="text-center">Chọn loại xe máy để đánh giá</h5>
                 <select class="form-select" id="hondaType" name="selected_honda_type_id"
                     onchange="this.form.submit()">
                     <option value="">-- Chọn loại xe --</option>
@@ -230,16 +231,16 @@
             </div>
             <input type="hidden" name="load_suggestions" id="loadSuggestionsInput" value="false">
             {% else %}
-            <div class="alert alert-warning">Vui lòng chọn loại honda để đánh giá.</div>
+            <div class="alert alert-warning">Vui lòng chọn loại xe để đánh giá.</div>
             {% endif %}
         </form>
 
         {% if error %}
         <div class="alert alert-danger mt-3">{{ error }}</div>
         {% endif %}
-    <hr>
+    <hr class="my-5" />
     {% if weights is not none %}
-        <h5 class="">Trọng số các phương án theo tiêu chí: <strong class="text-primary">{{ criteria_name }}</strong></h5>
+        <h5 class="text-center">Trọng số các phương án</h5>
         {% if cr is not none %}
         <span class="{% if cr < 0.10 %}text-success{% else %}text-danger{% endif %} fw-medium"
             style="font-size: 19px;">

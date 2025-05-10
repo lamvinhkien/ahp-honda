@@ -1,11 +1,486 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Đánh giá Động cơ
+Đánh giá Tiết kiệm nhiên liệu
 {% endblock %}
 
 {% block content %}
-<div>
-  Tiết kiệm nhiên liệu
+<div class="container mb-3">
+    <h3 class="text-center">Ma trận phương án theo tiêu chí: <span class="text-uppercase text-primary">{{ criteria_name }}</span></h3>
+    <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
+        <h5 class="text-center">Dữ liệu trực quan hoá các dòng xe</h5>
+        <div class="mb-3">
+            <select class="form-select" id="hondaPerformanceFilterTab">
+                <option value="Xe số">Xe số</option>
+                <option value="Xe tay ga">Xe tay ga</option>
+            </select>
+        </div>
+        <ul class="nav nav-tabs" id="performanceTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="table-tab" data-bs-toggle="tab" data-bs-target="#performanceTable" type="button" role="tab" aria-controls="performanceTable" aria-selected="true">Bảng dữ liệu</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="chart-tab" data-bs-toggle="tab" data-bs-target="#performanceChartTab" type="button" role="tab" aria-controls="performanceChartTab" aria-selected="false">Biểu đồ ước tính</button>
+            </li>
+        </ul>
+        <div class="tab-content mt-3" id="performanceTabsContent">
+            <div class="tab-pane fade show active" id="performanceTable" role="tabpanel" aria-labelledby="table-tab">
+                <div class="table-responsive" style="height: 290px; overflow-y: auto;">
+                    <table class="table table-bordered table-hover" id="hondaInfoTable">
+                        <thead>
+                            <tr class="text-nowrap">
+                                <th class="text-center">Loại</th>
+                                <th class="text-center">Tên xe</th>
+                                <th class="text-center">Mức tiêu hao</th>
+                                <th class="text-center">Dung tích bình xăng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="performanceChartTab" role="tabpanel" aria-labelledby="chart-tab">
+                <div style="height: 290px; width: 100%;" class="d-flex justify-content-center align-items-center">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    
+     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const hondaPerformanceFilterTab = document.getElementById('hondaPerformanceFilterTab');
+            const hondaInfoTableBody = document.getElementById('hondaInfoTable').getElementsByTagName('tbody')[0];
+            const performanceChartCanvas = document.getElementById('performanceChart');
+            let performanceChartInstance = null;
+
+            const hondaData = [
+                { type: 'Xe số', model: 'Wave Alpha 110', fuelConsumption: 1.6, fuelTankCapacity: 3.7 },
+                { type: 'Xe số', model: 'Blade 110', fuelConsumption: 1.7, fuelTankCapacity: 3.7 },
+                { type: 'Xe số', model: 'Wave RSX FI 110', fuelConsumption: 1.7, fuelTankCapacity: 4.0 },
+                { type: 'Xe số', model: 'Future 125 FI', fuelConsumption: 1.54, fuelTankCapacity: 4.6 },
+                { type: 'Xe số', model: 'Super Dream 125', fuelConsumption: 1.5, fuelTankCapacity: 4.0 },
+                { type: 'Xe số', model: 'Winner X', fuelConsumption: 1.67, fuelTankCapacity: 4.5 },
+                { type: 'Xe tay ga', model: 'Vision 110', fuelConsumption: 1.88, fuelTankCapacity: 4.7 },
+                { type: 'Xe tay ga', model: 'SH Mode 125', fuelConsumption: 1.9, fuelTankCapacity: 5.6 },
+                { type: 'Xe tay ga', model: 'Air Blade 160', fuelConsumption: 2.2, fuelTankCapacity: 4.5 },
+                { type: 'Xe tay ga', model: 'LEAD 125', fuelConsumption: 2.02, fuelTankCapacity: 6.0 },
+                { type: 'Xe tay ga', model: 'SH 160i', fuelConsumption: 2.4, fuelTankCapacity: 7.8 },
+                { type: 'Xe tay ga', model: 'Vario 160', fuelConsumption: 2.2, fuelTankCapacity: 5.5 },
+                { type: 'Xe tay ga', model: 'Genio 110', fuelConsumption: 1.69, fuelTankCapacity: 4.2 },
+                { type: 'Xe tay ga', model: 'ADV 160', fuelConsumption: 2.2, fuelTankCapacity: 8.1 },
+            ];
+
+            function getFuelEfficiencyScore(fuelConsumption) {
+                // Đánh giá mức độ tiết kiệm nhiên liệu (5 - Tiết kiệm nhất, 1 - Ít tiết kiệm nhất)
+                if (fuelConsumption <= 1.6) return 5;
+                if (fuelConsumption <= 1.8) return 4;
+                if (fuelConsumption <= 2.0) return 3;
+                if (fuelConsumption <= 2.2) return 2;
+                return 1;
+            }
+
+            function populateTable(data) {
+                hondaInfoTableBody.innerHTML = '';
+                data.forEach(honda => {
+                    const row = hondaInfoTableBody.insertRow();
+                    const typeCell = row.insertCell();
+                    const modelCell = row.insertCell();
+                    const fuelCell = row.insertCell();
+                    const capacityCell = row.insertCell(); // Thêm cột dung tích bình xăng
+
+                    typeCell.classList.add('text-center', 'fw-bold');
+                    fuelCell.classList.add('text-end');
+                    capacityCell.classList.add('text-end');
+
+                    typeCell.textContent = honda.type;
+                    modelCell.textContent = honda.model;
+                    fuelCell.textContent = `${honda.fuelConsumption} lít/100km`;
+                    capacityCell.textContent = `${honda.fuelTankCapacity} lít`;
+                });
+            }
+
+            function updatePerformanceChart(selectedType) {
+                const filteredData = hondaData.filter(honda => honda.type === selectedType);
+                const labels = filteredData.map(honda => honda.model);
+                const fuelEfficiencyScores = filteredData.map(honda => getFuelEfficiencyScore(honda.fuelConsumption));
+
+                if (performanceChartInstance) {
+                    performanceChartInstance.destroy();
+                }
+
+                const ctx = performanceChartCanvas.getContext('2d');
+                performanceChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Mức độ Tiết kiệm nhiên liệu',
+                            data: fuelEfficiencyScores,
+                            backgroundColor: '#CFE2FF', // Màu xanh lá cây cho tiết kiệm
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        if (value === 1) return 'Ít';
+                                        if (value === 2) return 'Trung bình thấp';
+                                        if (value === 3) return 'Trung bình';
+                                        if (value === 4) return 'Khá tốt';
+                                        if (value === 5) return 'Rất tốt';
+                                        return '';
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Mức độ Tiết kiệm'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateContent(selectedType) {
+                const filteredData = hondaData.filter(honda => honda.type === selectedType);
+                populateTable(filteredData);
+                updatePerformanceChart(selectedType);
+            }
+
+            // Khởi tạo với loại mặc định
+            const defaultType = hondaPerformanceFilterTab.value;
+            updateContent(defaultType);
+
+            // Lắng nghe sự thay đổi của bộ lọc
+            hondaPerformanceFilterTab.addEventListener('change', function () {
+                updateContent(this.value);
+            });
+
+            // Kích hoạt tab mặc định (Bảng dữ liệu)
+            const tableTab = document.getElementById('table-tab');
+            const bsTab = new bootstrap.Tab(tableTab);
+            bsTab.show();
+        });
+      </script>
+        <hr class="my-5" />
+        <form method="POST" action="{{ url_for('tknl.tknl_page') }}" id="alternativeComparisonForm">
+            <div>
+                <h5 class="text-center">Chọn loại xe máy để đánh giá</h5>
+                <select class="form-select" id="hondaType" name="selected_honda_type_id"
+                    onchange="this.form.submit()">
+                    <option value="">-- Chọn loại xe --</option>
+                    {% for honda_type in honda_types %}
+                    <option value="{{ honda_type.id }}" {% if current_honda_type_id|string==honda_type.id|string
+                        %}selected{% endif %}>
+                        {{ honda_type.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if selected_honda_type %}
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {% for name in alternative_names %}
+                            <th class="text-center align-middle">{{ name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(comparison_matrix|length) %}
+                        <tr>
+                            <th class="align-middle text-center">{{ alternative_names[i] }}</th>
+                            {% for j in range(comparison_matrix|length) %}
+                            <td class="text-center align-middle">
+                                {% if i == j %}
+                                <input type="text" class="form-control form-control-sm bg-primary-subtle"
+                                    name="{{ comparison_matrix[i][j].id }}" id="input_{{ i }}_{{ j }}"
+                                    value="{{ comparison_matrix[i][j].value }}" readonly disabled>
+                                {% elif j < i %} <input type="text" class="form-control form-control-sm"
+                                    name="{{ comparison_matrix[i][j].id }}" id="input_{{ i }}_{{ j }}"
+                                    value="{{ comparison_matrix[i][j].value }}" readonly disabled>
+                                    {% else %}
+                                    <input type="text"
+                                        class="form-control form-control-sm upper-input {% if comparison_matrix[i][j].error %}is-invalid{% endif %}"
+                                        name="{{ comparison_matrix[i][j].id }}" id="input_{{ i }}_{{ j }}"
+                                        value="{{ comparison_matrix[i][j].value }}">
+                                    {% if comparison_matrix[i][j].error %}
+                                    <div class="invalid-feedback">{{ comparison_matrix[i][j].error }}</div>
+                                    {% endif %}
+                                    {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-between gap-5">
+                <button type="button" class="btn btn-primary fw-bold text-white rounded-pill shadow-sm px-4 py-2 w-100"
+                    style="font-size: 18.5px;" id="suggestValuesButton">
+                    Gợi ý
+                </button>
+                <button type="button" class="btn btn-secondary fw-bold rounded-pill shadow-lg px-4 py-2 w-100"
+                    style="font-size: 18.5px;" id="resetMatrixToOne">Reset</button>
+                <button type="submit" class="btn btn-primary fw-bold rounded-pill shadow-lg px-4 py-2 w-100"
+                    style="font-size: 18.5px;" id="calculateButton">Tính kết quả</button>
+            </div>
+            <input type="hidden" name="load_suggestions" id="loadSuggestionsInput" value="false">
+            {% else %}
+            <div class="alert alert-warning">Vui lòng chọn loại xe để đánh giá.</div>
+            {% endif %}
+        </form>
+
+        {% if error %}
+        <div class="alert alert-danger mt-3">{{ error }}</div>
+        {% endif %}
+    <hr class="my-5" />
+    {% if weights is not none %}
+        <h5 class="text-center">Trọng số các phương án</h5>
+        {% if cr is not none %}
+        <span class="{% if cr < 0.10 %}text-success{% else %}text-danger{% endif %} fw-medium"
+            style="font-size: 19px;">
+            <span>Tỷ số nhất quán (CR):</span>
+            {{ (cr * 100)|round(2) }}%
+        </span>
+        {% endif %}
+        <div style="width: 75%;">
+            <canvas id="weightsChart"></canvas>
+        </div>
+        <div class="table-responsive d-none">
+            <table class="table table-bordered table-hover" id="tknl-weights-table">
+                <thead>
+                    <tr>
+                        <th class="text-center bg-primary-subtle">Phương án</th>
+                        <th class="text-center bg-primary-subtle">Trọng số</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alternative, weight in ranked_alternative_weights %}
+                    <tr>
+                        <td><strong>{{ alternative }}</strong></td>
+                        <td class="text-end">
+                            <span class="badge bg-primary rounded-pill" style="font-size: 18.5px;">
+                                {{ (weight * 100)|round(2) }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const weightsChartCanvas = document.getElementById('weightsChart').getContext('2d');
+        const labels = [{% for alternative, weight in ranked_alternative_weights %}'{{ alternative }}',{% endfor %}];
+        const data = [{% for alternative, weight in ranked_alternative_weights %}{{ (weight * 100)|round(2) }},{% endfor %}];
+
+        const weightsChart = new Chart(weightsChartCanvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Trọng số (%)',
+                    data: data,
+                    backgroundColor: '#CFE2FF',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Trọng số (%)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.x !== null) {
+                                    label += context.parsed.x + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+{% endif %}
 </div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const hondaTypeSelect = document.getElementById('hondaType');
+        const upperInputs = document.querySelectorAll('.upper-input');
+        const resetMatrixToOneButton = document.getElementById('resetMatrixToOne');
+        const calculateButton = document.getElementById('calculateButton');
+        const alternativeComparisonForm = document.getElementById('alternativeComparisonForm');
+        const suggestValuesButton = document.getElementById('suggestValuesButton');
+        const loadSuggestionsInput = document.getElementById('loadSuggestionsInput');
+        const allMatrixInputs = document.querySelectorAll('input[name^="comparison_"]'); // Lấy tất cả input của ma trận
+        const lowerInputs = document.querySelectorAll('input[readonly][name^="comparison_"]'); // Lấy tất cả input readonly của ma trận
+
+        // Hàm cập nhật ô nghịch đảo và kiểm tra giá trị
+        const updateOppositeInput = (input) => {
+            const value = input.value.trim();
+            const [_, altId1, altId2] = input.name.split('_');
+            const oppositeId = `comparison_${altId2}_${altId1}`;
+            const oppositeInput = document.querySelector(`[name="${oppositeId}"]`);
+            let isValid = true;
+            const allowedValues = ["1/9", "1/8", "1/7", "1/6", "1/5", "1/4", "1/3", "1/2", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+            if (oppositeInput) {
+                oppositeInput.value = '';
+                input.classList.remove('is-invalid');
+
+                if (value) {
+                    let calculatedValue;
+                    if (allowedValues.includes(value)) {
+                        if (value.includes('/')) {
+                            const [numStr, denStr] = value.split('/');
+                            const num = parseFloat(numStr);
+                            const den = parseFloat(denStr);
+                            if (!isNaN(num) && !isNaN(den) && den !== 0) {
+                                calculatedValue = (den / num).toString();
+                            } else {
+                                isValid = false;
+                            }
+                        } else {
+                            const numericValue = parseFloat(value);
+                            if (!isNaN(numericValue) && numericValue > 0) {
+                                calculatedValue = (1 / numericValue).toString();
+                            } else {
+                                isValid = false;
+                            }
+                        }
+                    } else {
+                        isValid = false; // Giá trị không nằm trong thang đo cho phép
+                    }
+
+                    if (isValid) {
+                        oppositeInput.value = calculatedValue;
+                    } else {
+                        input.classList.add('is-invalid');
+                    }
+                }
+            }
+            return isValid;
+        };
+
+        const saveMatrixToLocalStorage = () => {
+            const weightsData = {};
+            const weightTableBodyRows = document.querySelectorAll('#tknl-weights-table tbody tr');
+            if (weightTableBodyRows.length > 0) {
+                weightTableBodyRows.forEach(row => {
+                    const alternativeName = row.querySelector('strong').textContent;
+                    const weightValue = parseFloat(row.querySelector('.badge').textContent.replace('%', '')) / 100;
+                    weightsData[alternativeName] = weightValue;
+                });
+                console.log("Dữ liệu trọng số chuẩn bị lưu:", weightsData);
+                localStorage.setItem('tknl_alternative_weights', JSON.stringify(weightsData));
+            } else {
+                console.log("Không tìm thấy bảng trọng số để lưu.");
+            }
+        };
+
+        // Tải giá trị ma trận từ Local Storage
+        const loadMatrixFromLocalStorage = () => {
+            const storedMatrix = localStorage.getItem('tknl_comparison_matrix');
+            if (storedMatrix) {
+                const matrixValues = JSON.parse(storedMatrix);
+                upperInputs.forEach(input => { // Chỉ duyệt qua các ô nửa trên
+                    if (matrixValues.hasOwnProperty(input.name)) {
+                        input.value = matrixValues[input.name];
+                        updateOppositeInput(input); // Gọi hàm cập nhật nghịch đảo
+                    }
+                });
+            }
+        };
+
+        // Tải dữ liệu đã lưu khi trang load
+        loadMatrixFromLocalStorage();
+
+        upperInputs.forEach(input => {
+            input.addEventListener('input', function () {
+                updateOppositeInput(this);
+            });
+        });
+
+        resetMatrixToOneButton.addEventListener('click', function () {
+            upperInputs.forEach(input => {
+                if (!input.readOnly) {
+                    input.value = '1';
+                    input.classList.remove('is-invalid');
+                    const [_, altId1, altId2] = input.name.split('_');
+                    const oppositeId = `comparison_${altId2}_${altId1}`;
+                    const oppositeInput = document.querySelector(`[name="${oppositeId}"]`);
+                    if (oppositeInput) {
+                        oppositeInput.value = '1';
+                    }
+                }
+            });
+            localStorage.removeItem('tknl_comparison_matrix'); // Xóa dữ liệu đã lưu nếu đặt lại
+        });
+
+        suggestValuesButton.addEventListener('click', function () {
+            loadSuggestionsInput.value = 'true';
+            alternativeComparisonForm.submit();
+        });
+
+        alternativeComparisonForm.addEventListener('submit', function (event) {
+            const hasInvalidInput = Array.from(upperInputs).some(input => input.classList.contains('is-invalid'));
+            if (loadSuggestionsInput.value !== 'true' && hasInvalidInput) {
+                event.preventDefault();
+                alert('Vui lòng nhập giá trị hợp lệ cho tất cả các ô so sánh.');
+            }
+            loadSuggestionsInput.value = 'false'; // Reset sau khi submit
+        });
+
+        // Gọi saveMatrixToLocalStorage khi trang đã tải hoàn toàn, sau khi tính toán
+        window.addEventListener('load', function () {
+            const isCalculating = loadSuggestionsInput.value === 'false' && !Array.from(upperInputs).some(input => input.classList.contains('is-invalid'));
+            if (document.getElementById('tknl-weights-table') && isCalculating) {
+                saveMatrixToLocalStorage();
+            }
+        });
+
+        // Đảm bảo cập nhật nửa dưới sau khi DOMContentLoaded
+        upperInputs.forEach(input => {
+            updateOppositeInput(input);
+        });
+    });
+</script>
+
+<style>
+    .is-invalid {
+        border-color: red;
+    }
+</style>
+
 {% endblock %}
