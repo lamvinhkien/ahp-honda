@@ -7,39 +7,30 @@ So sánh tiêu chí
 {% block content %}
 <div class="container-lg">
     <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Chọn loại honda theo nhu cầu trước khi đánh giá</h5>
-        <hr/>
-        <div class="fst-italic" style="font-size: 17px;">
-            - Có 2 nhu cầu chính và phổ biến:
+        <div class="d-flex justify-content-between align-items-center">
+            <div class=""><h5>Chọn loại xe máy trước khi đánh giá</h5></div>
+            <form method="POST" action="{{ url_for('main.home_page') }}">
+                <select class="form-select bg-primary-subtle" id="hondaType" name="selected_honda_type_id" onchange="this.form.submit()">
+                    <option value="">--- Chọn loại xe ---</option>
+                    {% for honda_type in honda_types %}
+                    <option value="{{ honda_type.id }}" {% if selected_honda_type and selected_honda_type.id|string == honda_type.id|string %}selected{% endif %}>
+                        {{ honda_type.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
         </div>
         <div class="fst-italic" style="font-size: 17px;">
-            + Honda văn phòng: Mỏng nhẹ, thanh lịch, hiệu năng đủ cho văn phòng, đồ họa tích hợp, pin lâu, giá tốt.
+            - Xe số: <br>
+            + Ưu điểm: Tiết kiệm nhiên liệu, động cơ mạnh mẽ, bền bỉ, giá thành thường thấp hơn. <br>
+            + Nhược điểm: Cần thao tác sang số, không tiện lợi khi dừng đỗ thường xuyên.
         </div>
-        <div class="fst-italic" style="font-size: 17px;">
-            + Honda gaming: Dày nặng, hiệu năng mạnh, tản nhiệt tốt, màn hình tần số quét cao, pin yếu, giá thường cao.
+        <div class="fst-italic mt-2" style="font-size: 17px;">
+            - Xe tay ga: <br>
+            + Ưu điểm: Dễ lái, vận hành êm ái, cốp chứa đồ rộng, nhiều tiện ích. <br>
+            + Nhược điểm: Tiêu hao nhiên liệu hơn, giá thành thường cao hơn, bảo dưỡng phức tạp hơn.
         </div>
-        <hr/>
-        <form method="POST" action="{{ url_for('main.home_page') }}">
-            <select class="form-select" id="hondaType" name="selected_honda_type_id" onchange="this.form.submit()">
-                <option value="">-- Chọn loại honda --</option>
-                {% for honda_type in honda_types %}
-                <option value="{{ honda_type.id }}" {% if selected_honda_type and selected_honda_type.id|string == honda_type.id|string %}selected{% endif %}>
-                    {{ honda_type.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </form>
-    </div>
-
-    <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Đánh giá các tiêu chí trong việc lựa chọn xe máy Honda {% if selected_honda_type %} {{ selected_honda_type.name }} {% else %} Honda {% endif %}</h5>
-        <hr/>
-        <div class="fst-italic" style="font-size: 17px;">
-            - Có 7 tiêu chỉ để đánh giá bao gồm: Động cơ (CPU, RAM, Card đồ hoạ), Chi phí, Thiết kế (Trọng lượng, Chất
-            Liệu, Độ mỏng), Tiết kiệm nhiên liệu (Kích thước, Độ phân giải, Công nghệ màn hình), Thời lượng sử dụng (Pin), Thời gian bảo
-            hành, Tiện ích (Ổ cứng).
-        </div>
-        <hr/>
+        <hr>
         <form method="POST" action="{{ url_for('main.home_page') }}" id="criteriaForm">
             <input type="hidden" name="selected_honda_type_id" id="selectedHondaTypeId" value="{{ selected_honda_type_id|default('') }}">
             <div class="table-responsive">
@@ -59,7 +50,7 @@ So sánh tiêu chí
                             {% for j in range(comparison_matrix|length) %}
                             <td class="text-center align-middle">
                                 {% if i == j %}
-                                <input type="text" class="form-control form-control-sm bg-warning"
+                                <input type="text" class="form-control form-control-sm bg-primary-subtle"
                                        name="{{ comparison_matrix[i][j].id }}" id="input_{{ i }}_{{ j }}"
                                        value="{{ comparison_matrix[i][j].value }}" readonly disabled>
                                 {% elif j < i %}
@@ -81,94 +72,70 @@ So sánh tiêu chí
                     </tbody>
                 </table>
             </div>
-            <div class="row justify-content-end">
-                <div class="col-lg-3 col-12">
-                    <button type="button" class="btn btn-secondary fw-bold rounded-pill shadow-lg px-2 py-2 w-100"
-                            style="font-size: 18.5px;" id="resetMatrixToOne"><i class="fas fa-redo me-2"></i>Đặt lại về 1</button>
-                </div>
-                <div class="col-lg-4 col-12">
-                    <button type="submit" class="btn btn-primary fw-bold rounded-pill shadow-lg px-2 py-2 w-100 mt-lg-0 mt-2"
-                            style="font-size: 18.5px;" id="calculateButton"><i class="fas fa-calculator me-2"></i>Tính toán trọng số</button>
-                </div>
+            <div class="d-flex justify-content-end gap-5">
+                <button type="button" class="btn btn-secondary fw-bold rounded-pill shadow-lg px-2 py-2 w-100"
+                        style="font-size: 18.5px;" id="resetMatrixToOne">Reset</button>
+                <button type="submit" class="btn btn-primary fw-bold rounded-pill shadow-lg px-2 py-2 w-100 mt-lg-0 mt-2"
+                        style="font-size: 18.5px;" id="calculateButton">Tính kết quả</button>
             </div>
         </form>
-    </div>
-
-    {% if weights is not none %}
-    <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Kết quả trọng số các tiêu chí sau khi đánh giá</h5>
-        <hr/>
-        <div class="row">
-            <div class="col-lg-6 col-12">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th class="text-center bg-primary-subtle">Tiêu chí</th>
-                                <th class="text-center bg-primary-subtle">Trọng số</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for i in range(weights|length) %}
-                            <tr>
-                                <td><strong>{{ criteria_names[i] }}</strong></td>
-                                <td class="text-end">
-                                    <span class="badge bg-primary rounded-pill" style="font-size: 18.5px;">
-                                        {{ (weights[i] * 100)|round(2) }}%
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <hr>
+        <div class="d-flex justify-content-between mt-2 gap-5">
+            <div>
+                {% if cr is not none %}
+                {% if cr < 0.10 %}
+                <div style="font-size: 18px;">
+                    Kết quả trọng số và <span class="text-success">Tỷ số nhất quán (CR): <strong>{{ (cr * 100)|round(2) }}%</strong>.</span>
                 </div>
-                <div>
-                    {% if cr is not none %}
-                    {% if cr < 0.10 %}
-                    <div class="alert alert-success rounded-pill shadow-sm py-3 px-4" style="font-size: 18px;">
-                        <i class="fas fa-check-circle me-2"></i>Tỷ số nhất quán (CR): <strong>{{ (cr * 100)|round(2) }}%</strong>.
-                        Đánh giá này phù hợp để đưa ra kết luận.
-                    </div>
-                    {% else %}
-                    <div class="alert alert-danger rounded-pill shadow-sm py-3 px-4" style="font-size: 18px;">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Tỷ số nhất quán (CR): <strong>{{ (cr * 100)|round(2) }}%</strong>.
-                        Đánh giá này không phù hợp để đưa ra kết luận chính xác.
-                    </div>
-                    {% endif %}
-                    {% endif %}
+                {% else %}
+                <div style="font-size: 18px;">
+                    Kết quả trọng số và <span class="text-danger">Tỷ số nhất quán (CR): <strong>{{ (cr * 100)|round(2) }}%</strong>.</span>
                 </div>
-            </div>
-            <div class="col-lg-6 col-12">
-                <div class="d-flex justify-content-center" style="width: 100%; height: 100%;">
+                {% endif %}
+                {% endif %}
+                <div class="d-flex justify-content-center" style="width: 350px; height: 350px;">
                     <canvas id="criteriaPieChart"></canvas>
                 </div>
             </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Xếp hạng các phương án lựa chọn theo loại {% if selected_honda_type %} {{ selected_honda_type.name }} {% endif %}</h5>
-        <hr/>
-        <div class="d-flex justify-content-center">
-            <div style="width: 100%; height: 100%;">
+            <div>
+                <div style="font-size: 18px;">Xếp hạng các phương án lựa chọn theo loại {% if selected_honda_type %} {{ selected_honda_type.name }} {% endif %}</div>
                 <div class="d-flex justify-content-center">
                     <div id="alternativeMismatchWarning" class="alert alert-danger" style="display: none;">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <i class="fas fa-exclamation-triangle"></i>
                         Vui lòng kiểm tra lại đánh giá các ma trận so sánh cặp các phương án theo từng tiêu chí.
                     </div>
                 </div>
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-center" style="width: 100%; height: 100%;">
                     <canvas id="alternativesBarChart"></canvas>
                 </div>
             </div>
         </div>
-        <div class="row justify-content-lg-end">
-            <div class="col-lg-3 col-12">
-                <a href="{{ url_for('main.export_pdf') }}" class="btn btn-lg btn-success w-100 rounded-pill px-2 py-2" id="exportResult"><i class="fa-solid fa-download me-2 mt-1"></i>Xuất kết quả</a>
-            </div>
-        </div>
     </div>
+
+    {% if weights is not none %}
+    <div class="table-responsive d-none">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th class="text-center bg-primary-subtle">Tiêu chí</th>
+                    <th class="text-center bg-primary-subtle">Trọng số</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(weights|length) %}
+                <tr>
+                    <td><strong>{{ criteria_names[i] }}</strong></td>
+                    <td class="text-end">
+                        <span class="badge bg-primary rounded-pill" style="font-size: 18.5px;">
+                            {{ (weights[i] * 100)|round(2) }}%
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>
 
 <script type="text/javascript">
@@ -363,13 +330,13 @@ So sánh tiêu chí
         // Tạo biểu đồ tròn cho trọng số tiêu chí
         if (appData.weights !== null) {
             const backgroundColorsCriteria = [
-                'rgba(255,99, 132, 0.7)',
-                'rgba(54, 162, 235, 0.7)',
-                'rgba(255, 206, 86, 0.7)',
-                'rgba(75, 192, 192, 0.7)',
-                'rgba(153, 102, 255, 0.7)',
-                'rgba(255, 159, 64, 0.7)',
-                'rgba(199, 199, 199, 0.7)'
+                'rgba(255, 99, 132)',
+                'rgba(54, 162, 235)',
+                'rgba(255, 206, 86)',
+                'rgba(75, 192, 192)',
+                'rgba(153, 102, 255)',
+                'rgba(255, 159, 64)',
+                'rgba(199, 199, 199)'
             ];
             createPieChart('criteriaPieChart', appData.criteriaNames, appData.weights.map(w => w * 100), 'Trọng số tiêu chí (%)', backgroundColorsCriteria);
         }
@@ -451,17 +418,7 @@ So sánh tiêu chí
             const labels = rankedAlternatives.map(item => item.alternative);
             const data = rankedAlternatives.map(item => item.score * 100); // Nhân với 100 để hiển thị phần trăm
             const backgroundColors = [
-                'rgba(255, 99, 132, 0.7)',
-                'rgba(54, 162, 235, 0.7)',
-                'rgba(255, 206, 86, 0.7)',
-                'rgba(75, 192, 192, 0.7)',
-                'rgba(153, 102, 255, 0.7)',
-                'rgba(255, 159, 64, 0.7)',
-                'rgba(173, 216, 230, 0.7)', // Light Blue
-                'rgba(144, 238, 144, 0.7)', // Light Green
-                'rgba(255, 182, 193, 0.7)', // Light Pink
-                'rgba(190, 190, 190, 0.7)'   // Light Gray
-                // Thêm các màu khác nếu bạn có nhiều phương án hơn
+                '#CFE2FF', // Light Blue
             ];
 
             const ctx = document.getElementById('alternativesBarChart').getContext('2d');
