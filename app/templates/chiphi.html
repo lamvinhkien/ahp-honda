@@ -7,14 +7,13 @@
 {% block content %}
 <div class="container">
     <div class="py-3 px-4 shadow-lg rounded-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Dữ liệu tham khảo của các honda theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
+        <h5 class="">Dữ liệu trực quan hoá các dòng xe theo tiêu chí: <strong class="text-primary">{{ criteria_name }}</strong></h5>
         <div class="mb-3">
             <select class="form-select" id="hondaPerformanceFilterTab">
-                <option value="Văn phòng">Văn phòng</option>
-                <option value="Gaming">Gaming</option>
+                <option value="Xe số">Xe số</option>
+                <option value="Xe tay ga">Xe tay ga</option>
             </select>
         </div>
-        <hr>
         <ul class="nav nav-tabs" id="performanceTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="table-tab" data-bs-toggle="tab" data-bs-target="#performanceTable" type="button" role="tab" aria-controls="performanceTable" aria-selected="true">Bảng dữ liệu</button>
@@ -25,13 +24,13 @@
         </ul>
         <div class="tab-content mt-3" id="performanceTabsContent">
             <div class="tab-pane fade show active" id="performanceTable" role="tabpanel" aria-labelledby="table-tab">
-                <div class="table-responsive" style="height: 420px; overflow-y: auto;">
+                <div class="table-responsive" style="height: 290px; overflow-y: auto;">
                     <table class="table table-bordered table-hover" id="hondaInfoTable">
                         <thead>
                             <tr class="text-nowrap">
-                                <th class="text-center bg-primary-subtle">Loại</th>
-                                <th class="text-center bg-primary-subtle">Tên Model</th>
-                                <th class="text-center bg-primary-subtle">Giá (VNĐ)</th>
+                                <th class="text-center">Loại</th>
+                                <th class="text-center">Tên Model</th>
+                                <th class="text-center">Giá (VNĐ)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -40,12 +39,11 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="performanceChartTab" role="tabpanel" aria-labelledby="chart-tab">
-                <div style="height: 420px; width: 100%;" class="d-flex justify-content-center align-items-center">
+                <div style="height: 290px; width: 100%;" class="d-flex justify-content-center align-items-center">
                     <canvas id="performanceChart"></canvas>
                 </div>
             </div>
         </div>
-    </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -55,34 +53,28 @@
             let performanceChartInstance = null;
     
             const hondaData = [
-                { type: 'Văn phòng', model: 'Aspire 5 A515-58-54XJ', cost: 13500000 },
-                { type: 'Văn phòng', model: 'Aspire 5 A514 55-374Y', cost: 11000000 },
-                { type: 'Văn phòng', model: 'Aspire 3 A315-59-31X8', cost: 9500000 },
-                { type: 'Văn phòng', model: 'Swift 3 SF314-513-51HN', cost: 16000000 },
-                { type: 'Văn phòng', model: 'Swift Go SFG14 41 R9X4', cost: 18000000 },
-                { type: 'Văn phòng', model: 'Aspire 5 Slim A514-54-51MT', cost: 14500000 },
-                { type: 'Văn phòng', model: 'Aspire 3 Spin 14 ASP14-31T-313W', cost: 12000000 },
-                { type: 'Văn phòng', model: 'Swift X SFX14-51G-51W1', cost: 18500000 },
-                { type: 'Văn phòng', model: 'Aspire 7 A715-51G-51CB', cost: 16000000 },
-                { type: 'Văn phòng', model: 'Swift 5 SF514-56T-53GX', cost: 22000000 },
-                { type: 'Gaming', model: 'Nitro 5 AN515-58', cost: 25000000 },
-                { type: 'Gaming', model: 'Nitro 5 AN515-46', cost: 27000000 },
-                { type: 'Gaming', model: 'Predator Helios Neo 16 PHN16-71', cost: 45000000 },
-                { type: 'Gaming', model: 'Predator Helios 18 PH18-71', cost: 60000000 },
-                { type: 'Gaming', model: 'Predator Triton 500 SE PT516-52s', cost: 50000000 },
-                { type: 'Gaming', model: 'Predator Triton 300 SE PT314-52s', cost: 30000000 },
-                { type: 'Gaming', model: 'Nitro 16 AN16-41', cost: 35000000 },
-                { type: 'Gaming', model: 'Predator Helios 300 PH315-55', cost: 40000000 },
-                { type: 'Gaming', model: 'Aspire 7 A715-76G', cost: 28000000 },
-                { type: 'Gaming', model: 'Predator Triton 300 PT314-51', cost: 32000000 },
+                { type: 'Xe số', model: 'Wave Alpha 110', cost: 17860000 },
+                { type: 'Xe số', model: 'Blade 110', cost: 18900000 },
+                { type: 'Xe số', model: 'Wave RSX FI 110', cost: 22032000 },
+                { type: 'Xe số', model: 'Future 125 FI', cost: 30524000 },
+                { type: 'Xe số', model: 'Super Dream 125', cost: 25590000 },
+                { type: 'Xe số', model: 'Winner X', cost: 46160000 },
+                { type: 'Xe tay ga', model: 'Vision 110', cost: 32000000 },
+                { type: 'Xe tay ga', model: 'SH Mode 125', cost: 57000000 },
+                { type: 'Xe tay ga', model: 'Air Blade 160', cost: 57000000 },
+                { type: 'Xe tay ga', model: 'LEAD 125', cost: 39000000 },
+                { type: 'Xe tay ga', model: 'SH 160i', cost: 95000000 },
+                { type: 'Xe tay ga', model: 'Vario 160', cost: 56200000 },
+                { type: 'Xe tay ga', model: 'Genio 110', cost: 36000000 },
+                { type: 'Xe tay ga', model: 'ADV 160', cost: 82000000 },
             ];
     
             function getCostScore(cost) {
                 // Đánh giá chi phí theo thang điểm (ví dụ: 1 - Rẻ, 5 - Đắt)
-                if (cost < 12000000) return 1;
-                if (cost < 15000000) return 2;
-                if (cost < 20000000) return 3;
-                if (cost < 35000000) return 4;
+                if (cost < 20000000) return 1;
+                if (cost < 40000000) return 2;
+                if (cost < 60000000) return 3;
+                if (cost < 100000000) return 4;
                 return 5;
             }
     
@@ -120,8 +112,7 @@
                         datasets: [{
                             label: 'Điểm chi phí ước tính',
                             data: costScores,
-                            backgroundColor: 'rgba(255, 206, 86, 0.7)',
-                            borderColor: 'rgba(255, 206, 86, 1)',
+                            backgroundColor: '#CFE2FF',
                             borderWidth: 1
                         }]
                     },
@@ -172,14 +163,13 @@
             bsTab.show();
         });
     </script>
-
-    <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
+        <hr>
         <form method="POST" action="{{ url_for('chiphi.chiphi_page') }}" id="alternativeComparisonForm">
             <div>
-                <h5 class="">Chọn loại honda để đánh giá theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
+                <h5 class="">Chọn loại xe máy để đánh giá theo tiêu chí: <strong class="text-primary">{{ criteria_name }}</strong></h5>
                 <select class="form-select" id="hondaType" name="selected_honda_type_id"
                     onchange="this.form.submit()">
-                    <option value="">-- Chọn loại honda --</option>
+                    <option value="">-- Chọn loại xe --</option>
                     {% for honda_type in honda_types %}
                     <option value="{{ honda_type.id }}" {% if current_honda_type_id|string==honda_type.id|string
                         %}selected{% endif %}>
@@ -188,9 +178,8 @@
                     {% endfor %}
                 </select>
             </div>
-            <hr />
             {% if selected_honda_type %}
-            <div class="table-responsive">
+            <div class="table-responsive mt-3">
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
@@ -207,7 +196,7 @@
                             {% for j in range(comparison_matrix|length) %}
                             <td class="text-center align-middle">
                                 {% if i == j %}
-                                <input type="text" class="form-control form-control-sm bg-warning"
+                                <input type="text" class="form-control form-control-sm bg-primary-subtle"
                                     name="{{ comparison_matrix[i][j].id }}" id="input_{{ i }}_{{ j }}"
                                     value="{{ comparison_matrix[i][j].value }}" readonly disabled>
                                 {% elif j < i %} <input type="text" class="form-control form-control-sm"
@@ -229,17 +218,15 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-info fw-bold text-white rounded-pill shadow-sm px-4 py-2"
+            <div class="d-flex justify-content-between gap-5">
+                <button type="button" class="btn btn-primary fw-bold text-white rounded-pill shadow-sm px-4 py-2 w-100"
                     style="font-size: 18.5px;" id="suggestValuesButton">
-                    <i class="fas fa-lightbulb me-2"></i> Đề xuất giá trị
+                    Gợi ý
                 </button>
-                <button type="button" class="btn btn-secondary fw-bold rounded-pill shadow-lg px-4 py-2"
-                    style="font-size: 18.5px;" id="resetMatrixToOne"><i class="fas fa-redo me-2"></i> Đặt lại về
-                    1</button>
-                <button type="submit" class="btn btn-primary fw-bold rounded-pill shadow-lg px-4 py-2"
-                    style="font-size: 18.5px;" id="calculateButton"><i class="fas fa-calculator me-2"></i> Tính toán
-                    trọng số</button>
+                <button type="button" class="btn btn-secondary fw-bold rounded-pill shadow-lg px-4 py-2 w-100"
+                    style="font-size: 18.5px;" id="resetMatrixToOne">Reset</button>
+                <button type="submit" class="btn btn-primary fw-bold rounded-pill shadow-lg px-4 py-2 w-100"
+                    style="font-size: 18.5px;" id="calculateButton">Tính kết quả</button>
             </div>
             <input type="hidden" name="load_suggestions" id="loadSuggestionsInput" value="false">
             {% else %}
@@ -250,12 +237,17 @@
         {% if error %}
         <div class="alert alert-danger mt-3">{{ error }}</div>
         {% endif %}
-    </div>
+    <hr>
     {% if weights is not none %}
-    <div class="py-3 px-4 shadow-lg rounded-4 mt-4" style="background-color: rgb(250, 250, 250);">
-        <h5 class="">Trọng số các phương án theo tiêu chí: <strong class="text-warning">{{ criteria_name }}</strong></h5>
-        <hr />
-        <div style="height: 100%;">
+        <h5 class="">Trọng số các phương án theo tiêu chí: <strong class="text-primary">{{ criteria_name }}</strong></h5>
+        {% if cr is not none %}
+        <span class="{% if cr < 0.10 %}text-success{% else %}text-danger{% endif %} fw-medium"
+            style="font-size: 19px;">
+            <span>Tỷ số nhất quán (CR):</span>
+            {{ (cr * 100)|round(2) }}%
+        </span>
+        {% endif %}
+        <div style="width: 75%;">
             <canvas id="weightsChart"></canvas>
         </div>
         <div class="table-responsive d-none">
@@ -280,15 +272,7 @@
                 </tbody>
             </table>
         </div>
-        {% if cr is not none %}
-        <div class="d-flex justify-content-end">
-            <span class="badge {% if cr < 0.10 %}bg-success{% else %}bg-danger{% endif %} rounded-pill p-3"
-                style="font-size: 19px;">
-                <span>Tỷ số nhất quán (CR):</span>
-                {{ (cr * 100)|round(2) }}%
-            </span>
-        </div>
-        {% endif %}
+
     </div>
 
     <script>
@@ -297,13 +281,6 @@
         const labels = [{% for alternative, weight in ranked_alternative_weights %}'{{ alternative }}',{% endfor %}];
         const data = [{% for alternative, weight in ranked_alternative_weights %}{{ (weight * 100)|round(2) }},{% endfor %}];
 
-        const backgroundColors = labels.map((_, index) => {
-            const hue = index * 360 / labels.length;
-            return `hsl(${hue}, 70%, 60%)`;
-        });
-
-        const borderColors = backgroundColors.map(color => color.replace('70%', '80%'));
-
         const weightsChart = new Chart(weightsChartCanvas, {
             type: 'bar',
             data: {
@@ -311,8 +288,7 @@
                 datasets: [{
                     label: 'Trọng số (%)',
                     data: data,
-                    backgroundColor: backgroundColors,
-                    borderColor: borderColors,
+                    backgroundColor: '#CFE2FF',
                     borderWidth: 1
                 }]
             },

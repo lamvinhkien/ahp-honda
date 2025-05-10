@@ -99,11 +99,8 @@ So sánh tiêu chí
             </div>
             <div>
                 <div style="font-size: 18px;">Xếp hạng các phương án lựa chọn theo loại {% if selected_honda_type %} {{ selected_honda_type.name }} {% endif %}</div>
-                <div class="d-flex justify-content-center">
-                    <div id="alternativeMismatchWarning" class="alert alert-danger" style="display: none;">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Vui lòng kiểm tra lại đánh giá các ma trận so sánh cặp các phương án theo từng tiêu chí.
-                    </div>
+                <div id="alternativeMismatchWarning" class="text-danger" style="display: none;">
+                    Hãy kiểm tra lại đánh giá các ma trận phương án.
                 </div>
                 <div class="d-flex justify-content-center" style="width: 100%; height: 100%;">
                     <canvas id="alternativesBarChart"></canvas>
